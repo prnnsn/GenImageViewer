@@ -1,0 +1,133 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ControlTemplate x:Key="Control_Normal" TargetType="{x:Type Control}">
+        <Grid>
+            <Border Name="border" BorderThickness="1">
+
+            </Border>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#31C4E7" Opacity="0.4"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderBrush" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#319AE7" Opacity="0.8"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderThickness" Value="2" TargetName="border"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Background" Value="Transparent" TargetName="border"/>
+                <Setter Property="BorderBrush" Value="Transparent" TargetName="border"/>
+                <Setter Property="BorderThickness" Value="1" TargetName="border"/>
+            </Trigger>
+            <Trigger Property="IsFocused" Value="True" >
+                <Setter Property="Background" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#31C4E7" Opacity="0.4"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderBrush" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#319AE7" Opacity="0.8"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderThickness" Value="2" TargetName="border"/>
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <ControlTemplate x:Key="Control_Grid" TargetType="{x:Type Control}">
+        <Grid>
+            <Border Name="border" BorderThickness="1">
+            </Border>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#31C4E7" Opacity="0.5"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderBrush" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#319AE7" Opacity="1"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderThickness" Value="2" TargetName="border"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="Background" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#31C4E7" Opacity="0.2"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderBrush" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#319AE7" Opacity="0.7"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderThickness" Value="1" TargetName="border"/>
+            </Trigger>
+            <Trigger Property="IsFocused" Value="True" >
+                <Setter Property="Background" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#31C4E7" Opacity="0.5"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderBrush" TargetName="border">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#319AE7" Opacity="1"/>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    <Style x:Key="WindowStyle" TargetType="{x:Type Window}">
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Window}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                        <AdornerDecorator>
+                            <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}"/>
+                        </AdornerDecorator>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="ResizeMode" Value="CanResizeWithGrip">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type Window}">
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                                <Grid>
+                                    <AdornerDecorator>
+                                        <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" ContentStringFormat="{TemplateBinding ContentStringFormat}"/>
+                                    </AdornerDecorator>
+                                    <ResizeGrip x:Name="WindowResizeGrip" HorizontalAlignment="Right" IsTabStop="False" Visibility="Collapsed" VerticalAlignment="Bottom"/>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="ResizeMode" Value="CanResizeWithGrip"/>
+                                        <Condition Property="WindowState" Value="Normal"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Visibility" TargetName="WindowResizeGrip" Value="Visible"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
