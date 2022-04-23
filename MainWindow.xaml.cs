@@ -918,12 +918,12 @@ namespace GenImageViewer
 
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (string.IsNullOrEmpty(dialog.SelectedPath))
-                return;
-            stbSelectedFolder.Content = ResourceManager.MainFolder;
+                return;     
             infoTGACount.Text = "0";
 
             ResourceManager.Load(dialog.SelectedPath);
 
+            stbSelectedFolder.Content = ResourceManager.MainFolder;
             infoTotalTGACount.Text = (ResourceManager.TGAFiles[ETGALocation.ArtTextures].Count + ResourceManager.TGAFiles[ETGALocation.DataEnglishArtTextures].Count).ToString();
             infoTotalINI.Text = ResourceManager.MappedFiles.Count.ToString();
             infoTotalMappedImages.Text = ResourceManager.MappedImages.Count.ToString();
