@@ -28,15 +28,14 @@ namespace GenImageViewer
         public static List<MappedImage> MappedImages;
         public static List<MappedFile> MappedFiles;
 
-        public static Dictionary<ETGALocation, List<TGAFile>> TGAFiles;
+        private static TGALocation _tgaLocation_Art = new TGALocation(@"Art\Textures");
+        private static TGALocation _tgaLocation_Data = new TGALocation(@"Data\English\Art\Textures");
 
-        private static List<TGAFile> TGAFiles_Art;
-        private static List<TGAFile> TGAFiles_Data;
+        public static List<TGAFile> TGAFiles;
 
         private static List<MappedFile> _resourceMappedFiles;
         private static List<MappedImage> _resourceMappedImages;
 
-        private static Dictionary<ETGALocation, List<TGAFile>> _resourceTGAFiles;
         private static List<TGAFile> _resourceTGAFiles_Art;
         private static List<TGAFile> _resourceTGAFiles_Data;
 
@@ -47,11 +46,6 @@ namespace GenImageViewer
             _resourceMappedFiles = new List<MappedFile>();
             _resourceTGAFiles_Art = new List<TGAFile>();
             _resourceTGAFiles_Data = new List<TGAFile>();
-            _resourceTGAFiles = new Dictionary<ETGALocation, List<TGAFile>>()
-            {
-                {ETGALocation.ArtTextures,  _resourceTGAFiles_Art},
-                {ETGALocation.DataEnglishArtTextures,  _resourceTGAFiles_Data}
-            };
             LoadFromBIGs();
             LoadFromDirectory();
 
@@ -60,23 +54,16 @@ namespace GenImageViewer
             //отделение неюзабельных пикч, формировние связей
             MappedImages = new List<MappedImage>();
             MappedFiles = new List<MappedFile>();
-            TGAFiles_Art = new List<TGAFile>();
-            TGAFiles_Data = new List<TGAFile>();
-            TGAFiles = new Dictionary<ETGALocation, List<TGAFile>>()
-            {
-                {ETGALocation.ArtTextures, TGAFiles_Art },
-                {ETGALocation.DataEnglishArtTextures, TGAFiles_Data }
-            };
+            TGAFiles = new List<TGAFile>();
 
             for (int i = 0; i < _resourceMappedImages.Count; i++)
             {
                 int index;
-                ETGALocation TGALocation;
-                TGAFile resourceTGAFile = CheckResourceTGA(_resourceMappedImages[i].Texture, out index, out TGALocation);
+                List<TGAFile> resourceTGAFiles = CheckResourceTGA(_resourceMappedImages[i].Texture, out index);
 
-                if (resourceTGAFile == null)
+                if (index == -1)
                 {
-                    TGAFile tgaFile = CheckTGA(_resourceMappedImages[i].Texture, out index, out TGALocation);
+                    TGAFile tgaFile = CheckTGA(_resourceMappedImages[i].Texture);
                     if (tgaFile != null)
                     {
                         MappedFile mappedFile;
@@ -118,60 +105,47 @@ namespace GenImageViewer
                 {
                     TGAFile tgaFile = new TGAFile()
                     {
-                        BIGResource = resourceTGAFile.BIGResource,
+                        TGALocation = resourceTGAFiles[index].TGALocation,
+                        BIGResource = resourceTGAFiles[index].BIGResource,
                         MappedImages = new List<MappedImage>(),
-                        Name = resourceTGAFile.Name
+                        Name = resourceTGAFiles[index].Name
                     };
-                    switch (TGALocation)
-                    {
-                    case ETGALocation.DataEnglishArtTextures:
+                    TGAFiles.Add(tgaFile);
+                    resourceTGAFiles.RemoveAt(index);
+
+                    MappedFile mappedFile;
+
+                    for (int k = 0; k < MappedFiles.Count; k++)
+                        if (_resourceMappedImages[i].ParentMappedFile.Name == MappedFiles[k].Name)
                         {
-                            TGAFiles_Data.Add(tgaFile);
-                            _resourceTGAFiles_Data.RemoveAt(index);
+                            mappedFile = MappedFiles[k];
+                            goto close;
                         }
-                        goto add;
-                    case ETGALocation.ArtTextures:
-                        {
-                            TGAFiles_Art.Add(tgaFile);
-                            _resourceTGAFiles_Art.RemoveAt(index);
-                        }
-                        goto add;
-                    }
-                add:
+                    mappedFile = new MappedFile()
                     {
-                        MappedFile mappedFile;
+                        BIGResource = _resourceMappedImages[i].ParentMappedFile.BIGResource,
+                        MappedImages = new List<MappedImage>(),
+                        Name = _resourceMappedImages[i].ParentMappedFile.Name
+                    };
+                    MappedFiles.Add(mappedFile);
+                close:;
 
-                        for (int k = 0; k < MappedFiles.Count; k++)
-                            if (_resourceMappedImages[i].ParentMappedFile.Name == MappedFiles[k].Name)
-                            {
-                                mappedFile = MappedFiles[k];
-                                goto close;
-                            }
-                        mappedFile = new MappedFile()
-                        {
-                            BIGResource = _resourceMappedImages[i].ParentMappedFile.BIGResource,
-                            MappedImages = new List<MappedImage>(),
-                            Name = _resourceMappedImages[i].ParentMappedFile.Name
-                        };
-                        MappedFiles.Add(mappedFile);
-                    close:;
+                    MappedImage mappedImage = new MappedImage()
+                    {
+                        TGAFile = tgaFile,
+                        Coords = _resourceMappedImages[i].Coords,
+                        Name = _resourceMappedImages[i].Name,
+                        Status = _resourceMappedImages[i].Status,
+                        Texture = _resourceMappedImages[i].Texture,
+                        TextureHeight = _resourceMappedImages[i].TextureHeight,
+                        TextureWidth = _resourceMappedImages[i].TextureWidth,
+                        ParentMappedFile = mappedFile
+                    };
 
-                        MappedImage mappedImage = new MappedImage()
-                        {
-                            TGAFile = tgaFile,
-                            Coords = _resourceMappedImages[i].Coords,
-                            Name = _resourceMappedImages[i].Name,
-                            Status = _resourceMappedImages[i].Status,
-                            Texture = _resourceMappedImages[i].Texture,
-                            TextureHeight = _resourceMappedImages[i].TextureHeight,
-                            TextureWidth = _resourceMappedImages[i].TextureWidth,
-                            ParentMappedFile = mappedFile
-                        };
+                    mappedFile.MappedImages.Add(mappedImage);
+                    MappedImages.Add(mappedImage);
+                    tgaFile.MappedImages.Add(mappedImage);
 
-                        mappedFile.MappedImages.Add(mappedImage);
-                        MappedImages.Add(mappedImage);
-                        tgaFile.MappedImages.Add(mappedImage);
-                    }
                 }
             }
 
@@ -248,6 +222,7 @@ namespace GenImageViewer
                 }
             _resourceTGAFiles_Art.Add(new TGAFile()
             {
+                TGALocation = _tgaLocation_Art,
                 Name = System.IO.Path.GetFileName(bigArchive.Entries[entryIndex].Name),
                 BIGResource = new BIGResource()
                 {
@@ -272,6 +247,7 @@ namespace GenImageViewer
                 }
             _resourceTGAFiles_Data.Add(new TGAFile()
             {
+                TGALocation = _tgaLocation_Data,
                 Name = name,
                 BIGResource = new BIGResource()
                 {
@@ -348,6 +324,7 @@ namespace GenImageViewer
                 }
             _resourceTGAFiles_Art.Add(new TGAFile()
             {
+                TGALocation = _tgaLocation_Art,
                 Name = name,
                 BIGResource = null
             });
@@ -364,6 +341,7 @@ namespace GenImageViewer
                 }
             _resourceTGAFiles_Data.Add(new TGAFile()
             {
+                TGALocation = _tgaLocation_Data,
                 Name = name,
                 BIGResource = null
             });
@@ -529,46 +507,28 @@ namespace GenImageViewer
             return null;
         }
 
-        private static TGAFile CheckResourceTGA(string name, out int index, out ETGALocation TGALocation)
+        private static List<TGAFile> CheckResourceTGA(string name, out int index)
         {
-            for (int k = 0; k < _resourceTGAFiles_Data.Count; k++)
-                if (_resourceTGAFiles_Data[k].Name == name)
+            for (int i = 0; i < _resourceTGAFiles_Data.Count; i++)
+                if (_resourceTGAFiles_Data[i].Name == name)
                 {
-                    index = k;
-                    TGALocation = ETGALocation.DataEnglishArtTextures;
-                    return _resourceTGAFiles_Data[k];
+                    index = i;
+                    return _resourceTGAFiles_Data;
                 }
 
-            for (int k = 0; k < _resourceTGAFiles_Art.Count; k++)
-                if (_resourceTGAFiles_Art[k].Name == name)
+            for (int i = 0; i < _resourceTGAFiles_Art.Count; i++)
+                if (_resourceTGAFiles_Art[i].Name == name)
                 {
-                    index = k;
-                    TGALocation = ETGALocation.ArtTextures;
-                    return _resourceTGAFiles_Art[k];
+                    index = i;
+                    return _resourceTGAFiles_Art;
                 }
             index = -1;
-            TGALocation = ETGALocation.Other;
             return null;
         }
-        private static TGAFile CheckTGA(string name, out int index, out ETGALocation TGALocation)
+        private static TGAFile CheckTGA(string name)
         {
-            for (int k = 0; k < TGAFiles_Data.Count; k++)
-                if (TGAFiles_Data[k].Name == name)
-                {
-                    index = k;
-                    TGALocation = ETGALocation.DataEnglishArtTextures;
-                    return TGAFiles_Data[k];
-                }
-
-            for (int k = 0; k < TGAFiles_Art.Count; k++)
-                if (TGAFiles_Art[k].Name == name)
-                {
-                    index = k;
-                    TGALocation = ETGALocation.ArtTextures;
-                    return TGAFiles_Art[k];
-                }
-            index = -1;
-            TGALocation = ETGALocation.Other;
+            for (int i = 0; i < TGAFiles.Count; i++)
+                if (TGAFiles[i].Name == name) return TGAFiles[i];
             return null;
         }
     }
@@ -592,7 +552,7 @@ namespace GenImageViewer
                     if (value != isGridView)
                     {
                         isGridView = value;
-                        if (MappedImageViews.Count > 0)
+                        if (MappedImageViews != null && MappedImageViews.Count > 0)
                         {
                             for (int i = 0; i < MappedImageViews.Count; i++)
                             {
@@ -643,9 +603,9 @@ namespace GenImageViewer
                 MappedImageViews = new List<MappedImageView>();
             }
 
-            public static void LoadImage(TGAFile tgaFile, string location)
+            public static void LoadImage(TGAFile tgaFile)
             {
-                LoadTGAToView(tgaFile, location);
+                LoadTGAToView(tgaFile);
 
                 ReCalcImageSizeRatio();
 
@@ -669,9 +629,9 @@ namespace GenImageViewer
                     }
                 }
             }
-            private static void LoadTGAToView(TGAFile tgaFile, string location)
+            private static void LoadTGAToView(TGAFile tgaFile)
             {
-                Bitmap bitmap = tgaFile.GetBitmap(ResourceManager.MainFolder, location);
+                Bitmap bitmap = tgaFile.GetBitmap(ResourceManager.MainFolder);
 
                 ParentImage.Source = ToWpfBitmap(bitmap);
                 ParentImage.Visibility = Visibility.Visible;
@@ -830,16 +790,14 @@ namespace GenImageViewer
             {
                 public ListBoxItem ListBoxItem;
                 public TGAFile TGAFile;
-                public string Location;
 
-                public TGAView(TGAFile tgaFile, string location)
+                public TGAView(TGAFile tgaFile)
                 {
-                    Location = location;
                     TGAFile = tgaFile;
                     ListBoxItem = new ListBoxItem() { Content = TGAFile.Name };
                     ListBoxItem.ToolTip =
                         $@"{(TGAFile.BIGResource != null ? $@"BIG File = {TGAFile.BIGResource.BIGRFile.FileName}" + "\r\n" : "")}" +
-                        $@"{location}\{TGAFile.Name}";
+                        $@"{(string)tgaFile.TGALocation}\{TGAFile.Name}";
                     ListBoxItem.Tag = this;
                     ToolTipService.SetShowDuration(ListBoxItem, 60000);
                     ToolTipService.SetPlacement(ListBoxItem, System.Windows.Controls.Primitives.PlacementMode.Top);
@@ -853,16 +811,11 @@ namespace GenImageViewer
         {
             TGAViewModel.InitParentsViews(lstTGA);
 
-            var keys = ResourceManager.TGAFiles.Keys;
-            foreach (var key in keys)
+            for (int i = 0; i < ResourceManager.TGAFiles.Count; i++)
             {
-                string location = key.GetLocation();
-                if (string.IsNullOrEmpty(location)) continue;
-                for (int i = 0; i < ResourceManager.TGAFiles[key].Count; i++)
-                {
-                    TGAViewModel.TGAViews.Add(new TGAViewModel.TGAView(ResourceManager.TGAFiles[key][i], location));
-                }
+                TGAViewModel.TGAViews.Add(new TGAViewModel.TGAView(ResourceManager.TGAFiles[i]));
             }
+
         }
 
         public static BitmapSource ToWpfBitmap(Bitmap bitmap)
@@ -889,7 +842,7 @@ namespace GenImageViewer
                 TGAViewModel.TGAView tgaView = selectedItem.Tag as TGAViewModel.TGAView;
                 TGAFile tgaFile = tgaView.TGAFile;
 
-                MappedImageViewModel.LoadImage(tgaFile, tgaView.Location);
+                MappedImageViewModel.LoadImage(tgaFile);
 
                 infoTGACount.Text = "1";
                 infoMappedImages.Text = MappedImageViewModel.MappedImageViews.Count.ToString();
@@ -918,13 +871,13 @@ namespace GenImageViewer
 
             System.Windows.Forms.DialogResult result = dialog.ShowDialog();
             if (string.IsNullOrEmpty(dialog.SelectedPath))
-                return;     
+                return;
             infoTGACount.Text = "0";
 
             ResourceManager.Load(dialog.SelectedPath);
 
             stbSelectedFolder.Content = ResourceManager.MainFolder;
-            infoTotalTGACount.Text = (ResourceManager.TGAFiles[ETGALocation.ArtTextures].Count + ResourceManager.TGAFiles[ETGALocation.DataEnglishArtTextures].Count).ToString();
+            infoTotalTGACount.Text = (ResourceManager.TGAFiles.Count).ToString();
             infoTotalINI.Text = ResourceManager.MappedFiles.Count.ToString();
             infoTotalMappedImages.Text = ResourceManager.MappedImages.Count.ToString();
 

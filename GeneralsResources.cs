@@ -8,23 +8,34 @@ using System.Windows;
 
 namespace GenImageViewer
 {
+    /// <summary>
+    /// BIG file is main flie type for packing game resources
+    /// </summary>
     public class BIGFile
     {
         public string FileName;
     }
+    /// <summary>
+    /// If file (TGA or MappedFile) located in BIG file then its not null
+    /// </summary>
     public class BIGResource
     {
         public BIGFile BIGRFile;
         public int Offset, Lenght;
         public string Name;
     }
+    /// <summary>
+    /// MappedImage coordinates on TGA file
+    /// </summary>
     public class MappedCoordinates : ICloneable
     {
         public int Left, Top, Right, Bottom;
 
         public object Clone() => MemberwiseClone();
     }
-
+    /// <summary>
+    /// INI file with list of MappedImages
+    /// </summary>
     public class MappedFile
     {
         public static int Sort(MappedFile file1, MappedFile file2)
@@ -38,6 +49,9 @@ namespace GenImageViewer
         public BIGResource BIGResource;
         public List<MappedImage> MappedImages;
     }
+    /// <summary>
+    /// Data of mapped image in TGA from MappedFile (MappedImages ini file)
+    /// </summary>
     public class MappedImage
     {
         public string Name;
@@ -122,33 +136,27 @@ namespace GenImageViewer
             cameo.Dispose();
         }
     }
-    public enum ETGALocation
-    {
-        Other,
-        ArtTextures,
-        DataEnglishArtTextures
-    }
-    public static class TGALocationExtensions
-    {
-        public static string GetLocation(this ETGALocation tgaLocation)
-        {
-            switch (tgaLocation)
-            {
-            case ETGALocation.ArtTextures: return @"Art\Textures";
-            case ETGALocation.DataEnglishArtTextures: return @"Data\English\Art\Textures";
-            case ETGALocation.Other:
-            default: return "";
-            }
-        }
-    }
 
+    /// <summary>
+    /// TGA Location in game resources (Art\Textrures and itc)
+    /// </summary>
+    public class TGALocation
+    {
+        public TGALocation(string location) => _location = location;
+        private string _location;
+        public static explicit operator string(TGALocation tgaLocation) => tgaLocation._location;
+    }
+    /// <summary>
+    /// Main file type for game imeges
+    /// </summary>
     public class TGAFile
     {
+        public TGALocation TGALocation;
         public string Name;
         public BIGResource BIGResource;
         public List<MappedImage> MappedImages;
 
-        public Bitmap GetBitmap(string mainFolder, string location)
+        public Bitmap GetBitmap(string mainFolder)
         {
             if (BIGResource != null)
             {
@@ -165,7 +173,7 @@ namespace GenImageViewer
             }
             else
             {
-                return TGALib.TargaImage.LoadTargaImage($@"{mainFolder}\{location}\{Name}");
+                return TGALib.TargaImage.LoadTargaImage($@"{mainFolder}\{(string)TGALocation}\{Name}");
             }
         }
     }
