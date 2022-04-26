@@ -150,7 +150,7 @@ namespace GenImageViewer
             foreach (BIGFile bIGFile in BIGFiles)
             {
                 BigArchive bigArchive = new BigArchive();
-                bigArchive.Open(BigArchive.EWorkMode.Open, bIGFile.FileName);
+                bigArchive.Open(BigArchive.EOpenMode.Open, bIGFile.FileName);
                 bIGFile.FileName = bIGFile.FileName.Substring(MainFolder.Length + 1);
 
                 for (int i = bigArchive.Entries.Count - 1; i > -1; i--)
