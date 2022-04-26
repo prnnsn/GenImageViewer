@@ -1,32 +1,23 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace GenImageViewer
 {
-    public static class ResourceManager
+    public static class GameResources
     {
         public static string MainFolder => _mainFolder;
         private static string _mainFolder;
-        public static List<BIGFile> BIGFiles;
-        public static List<MappedImage> MappedImages;
-        public static List<MappedFile> MappedFiles;
+        public static List<BIGFile> BIGFiles = new List<BIGFile>();
+        public static List<MappedImage> MappedImages = new List<MappedImage>();
+        public static List<MappedFile> MappedFiles = new List<MappedFile>();
 
         private static TGALocation _tgaLocation_Art = new TGALocation(@"Art\Textures");
         private static TGALocation _tgaLocation_Data = new TGALocation(@"Data\English\Art\Textures");
@@ -51,10 +42,10 @@ namespace GenImageViewer
 
             GetResourceMappedImages();
 
-            //отделение неюзабельных пикч, формировние связей
-            MappedImages = new List<MappedImage>();
-            MappedFiles = new List<MappedFile>();
-            TGAFiles = new List<TGAFile>();
+            //Delete useless resources, make links (pointers) with resources
+            MappedImages.Clear();
+            MappedFiles.Clear();
+            TGAFiles.Clear();
 
             for (int i = 0; i < _resourceMappedImages.Count; i++)
             {
@@ -631,7 +622,7 @@ namespace GenImageViewer
             }
             private static void LoadTGAToView(TGAFile tgaFile)
             {
-                Bitmap bitmap = tgaFile.GetBitmap(ResourceManager.MainFolder);
+                Bitmap bitmap = tgaFile.GetBitmap(GameResources.MainFolder);
 
                 ParentImage.Source = ToWpfBitmap(bitmap);
                 ParentImage.Visibility = Visibility.Visible;
@@ -811,9 +802,9 @@ namespace GenImageViewer
         {
             TGAViewModel.InitParentsViews(lstTGA);
 
-            for (int i = 0; i < ResourceManager.TGAFiles.Count; i++)
+            for (int i = 0; i < GameResources.TGAFiles.Count; i++)
             {
-                TGAViewModel.TGAViews.Add(new TGAViewModel.TGAView(ResourceManager.TGAFiles[i]));
+                TGAViewModel.TGAViews.Add(new TGAViewModel.TGAView(GameResources.TGAFiles[i]));
             }
 
         }
@@ -874,12 +865,12 @@ namespace GenImageViewer
                 return;
             infoTGACount.Text = "0";
 
-            ResourceManager.Load(dialog.SelectedPath);
+            GameResources.Load(dialog.SelectedPath);
 
-            stbSelectedFolder.Content = ResourceManager.MainFolder;
-            infoTotalTGACount.Text = (ResourceManager.TGAFiles.Count).ToString();
-            infoTotalINI.Text = ResourceManager.MappedFiles.Count.ToString();
-            infoTotalMappedImages.Text = ResourceManager.MappedImages.Count.ToString();
+            stbSelectedFolder.Content = GameResources.MainFolder;
+            infoTotalTGACount.Text = (GameResources.TGAFiles.Count).ToString();
+            infoTotalINI.Text = GameResources.MappedFiles.Count.ToString();
+            infoTotalMappedImages.Text = GameResources.MappedImages.Count.ToString();
 
             AddTGAToView();
             MappedImageViewModel.InitParentsViews(lstImages, grdImage, grdButtons, imgTGA);

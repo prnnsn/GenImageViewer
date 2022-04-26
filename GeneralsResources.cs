@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 
 namespace GenImageViewer
@@ -84,7 +82,7 @@ namespace GenImageViewer
             Bitmap bitmap;
             if (TGAFile.BIGResource != null)
             {
-                using (FileStream fs = new FileStream($@"{ResourceManager.MainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                using (FileStream fs = new FileStream($@"{GameResources.MainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
                 using (BinaryReader br = new BinaryReader(fs))
                 {
                     br.BaseStream.Position = TGAFile.BIGResource.Offset;
@@ -97,7 +95,7 @@ namespace GenImageViewer
             }
             else
             {
-                bitmap = TGALib.TargaImage.LoadTargaImage($@"{ResourceManager.MainFolder}\{location}\{TGAFile.Name}");
+                bitmap = TGALib.TargaImage.LoadTargaImage($@"{GameResources.MainFolder}\{location}\{TGAFile.Name}");
             }
 
             int height = TextureHeight;
