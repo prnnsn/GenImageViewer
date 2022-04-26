@@ -79,7 +79,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PalomaTGA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

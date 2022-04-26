@@ -77,25 +77,25 @@ namespace GenImageViewer
                 $"End";
             Clipboard.SetText(s);
         }
-        public void Save(string fileName, string location)
+        public void Save(string mainFolder, string fileName, string location)
         {
             Bitmap bitmap;
             if (TGAFile.BIGResource != null)
             {
-                using (FileStream fs = new FileStream($@"{GameResources.MainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                using (FileStream fs = new FileStream($@"{mainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
                 using (BinaryReader br = new BinaryReader(fs))
                 {
                     br.BaseStream.Position = TGAFile.BIGResource.Offset;
                     byte[] bytes = br.ReadBytes(TGAFile.BIGResource.Lenght);
                     using (MemoryStream ms = new MemoryStream(bytes))
                     {
-                        bitmap = TGALib.TargaImage.LoadTargaImage(ms);
+                        bitmap = TGA.FromBytes(ms.ToArray()).ToBitmap();
                     }
                 }
             }
             else
-            {
-                bitmap = TGALib.TargaImage.LoadTargaImage($@"{GameResources.MainFolder}\{location}\{TGAFile.Name}");
+            {              
+                bitmap = TGA.FromFile($@"{mainFolder}\{location}\{TGAFile.Name}").ToBitmap();
             }
 
             int height = TextureHeight;
@@ -165,13 +165,13 @@ namespace GenImageViewer
                     byte[] bytes = br.ReadBytes(BIGResource.Lenght);
                     using (MemoryStream ms = new MemoryStream(bytes))
                     {
-                        return TGALib.TargaImage.LoadTargaImage(ms);
+                        return TGA.FromBytes(ms.ToArray()).ToBitmap();
                     }
                 }
             }
             else
             {
-                return TGALib.TargaImage.LoadTargaImage($@"{mainFolder}\{(string)TGALocation}\{Name}");
+                return TGA.FromFile($@"{mainFolder}\{(string)TGALocation}\{Name}").ToBitmap();
             }
         }
     }
