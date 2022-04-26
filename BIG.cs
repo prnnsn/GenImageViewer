@@ -1,4 +1,28 @@
-﻿using System;
+﻿///.BIG File Specification
+///
+///.big files are an archive format that was used in many game titles created by EA Studios.
+///
+///Header
+/// char[4] FourCC - Identifies the string as valid big archive. The string may either be “BIG4” or “BIGF”, depending on the version.
+/// uint Size (LE) - The entire size of a big archive. Size of a single archive can not be greater than 2^32 bytes
+/// uint NumEntries (BE) - Number of files that were packed into this archive
+/// uint OffsetFirst (BE) - The offset inside the file to the first entry
+///end Header
+///
+///List of entries [NumEntries]
+/// uint EntryOffset (BE) - specified the start of this entry inside the file (in bytes)
+/// uint EntrySize (BE) - the size of the specified entry
+/// string EntryName - the name of this entry, read as a nullterminated string. The maximum length is limited ny the Windows MAX_PATH (which is 260)
+///end List of entries
+///
+///string unkownString = L225
+///byte nullTerminatedBytes[4]
+///
+///List of files [NumEntries] (Binary) - all files placed one after another without null terminated bytes
+///
+///Source - OpenSAGE project https://github.com/OpenSAGE/OpenSAGE
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,6 +30,9 @@ using System.Text;
 
 namespace GenImageViewer
 {
+    /// <summary>
+    /// Entry in BIG file
+    /// </summary>
     public class BigEntry
     {
         public string Name => _name;
@@ -23,25 +50,28 @@ namespace GenImageViewer
     }
     public class BigArchive
     {
+        /// <summary>
+        /// Custom reader for BIG files
+        /// </summary>
         private class BigReader : BinaryReader
         {
             public BigReader(Stream stream) : base(stream, Encoding.ASCII) { }
             /// <summary>
-            /// Считываем строку
+            /// Read string
             /// </summary>
-            /// <param name="count">Количество байт</param>
-            /// <returns>Возвращаем строку</returns>
-            public string ReadString(int count)
+            /// <param name="charCount">Char count</param>
+            /// <returns>Return string</returns>
+            public string ReadString(int charCount)
             {
-                StringBuilder stringBuilder = new StringBuilder(count);
-                for (int i = 0; i < count; i++)
+                StringBuilder stringBuilder = new StringBuilder(charCount);
+                for (int i = 0; i < charCount; i++)
                     stringBuilder[i] = this.ReadChar();
                 return stringBuilder.ToString();
             }
             /// <summary>
-            /// Считываем строку
+            /// Read string
             /// </summary>
-            /// <param name="ch">Крайний символ для окончания считывания</param>
+            /// <param name="ch">Null terminated char</param>
             /// <returns></returns>
             public string ReadString(char ch)
             {
@@ -59,10 +89,13 @@ namespace GenImageViewer
             public uint ReadUintBigEndian() => BitConverter.ToUInt32(this.ReadBytes(4).Reverse().ToArray(), 0);
             public uint ReadUintLittleEndian() => BitConverter.ToUInt32(this.ReadBytes(4), 0);
         }
+        /// <summary>
+        /// Mode for working with BIG file
+        /// </summary>
         public enum EOpenMode
         {
             /// <summary>
-            /// Открыть для чтения
+            /// Open for read
             /// </summary>
             Open
         }
@@ -107,6 +140,11 @@ namespace GenImageViewer
                 return;
             }
         }
+        /// <summary>
+        /// Call an event every entry was readed
+        /// </summary>
+        /// <param name="count">Total entries</param>
+        /// <param name="progress">Readed entries</param>
         public delegate void OpenProgressEventHandler(uint count, uint progress);
         public event OpenProgressEventHandler OpenProgressEvent;
     }

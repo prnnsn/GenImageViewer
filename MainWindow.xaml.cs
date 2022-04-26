@@ -22,7 +22,7 @@ namespace GenImageViewer
         private static TGALocation _tgaLocation_Art = new TGALocation(@"Art\Textures");
         private static TGALocation _tgaLocation_Data = new TGALocation(@"Data\English\Art\Textures");
 
-        public static List<TGAFile> TGAFiles;
+        public static List<TGAFile> TGAFiles = new List<TGAFile>();
 
         private static List<MappedFile> _resourceMappedFiles;
         private static List<MappedImage> _resourceMappedImages;
