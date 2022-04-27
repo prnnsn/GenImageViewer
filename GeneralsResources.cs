@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using static GenImageViewer.GameResource;
 
 namespace GenImageViewer
 {
@@ -15,7 +16,13 @@ namespace GenImageViewer
         /// </summary>
         public class BIGFile
         {
+            private GameResource _gameResource;
+            public GameResource GameResource => _gameResource;
             public string FileName;
+            public BIGFile(GameResource gameResource)
+            {
+                _gameResource = gameResource;
+            }
         }
         /// <summary>
         /// If file (TGA or MappedFile) located in BIG file then its not null
@@ -91,12 +98,16 @@ namespace GenImageViewer
                     $"End";
                 Clipboard.SetText(s);
             }
-            public void Save(string mainFolder, string fileName, string location)
+            /// <summary>
+            /// Save image from TGA by MappedImage variables
+            /// </summary>
+            /// <param name="fileName">Name and path to save</param>
+            public void Save(string fileName)
             {
                 Bitmap bitmap;
                 if (TGAFile.BIGResource != null)
                 {
-                    using (FileStream fs = new FileStream($@"{mainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = new FileStream($@"{TGAFile.BIGResource.BIGRFile.GameResource.MainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
                     using (BinaryReader br = new BinaryReader(fs))
                     {
                         br.BaseStream.Position = TGAFile.BIGResource.Offset;
@@ -109,7 +120,7 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    bitmap = TGA.FromFile($@"{mainFolder}\{location}\{TGAFile.Name}").ToBitmap();
+                    bitmap = TGA.FromFile($@"{TGAFile.BIGResource.BIGRFile.GameResource.MainFolder}\{(string)TGAFile.TGALocation}\{TGAFile.Name}").ToBitmap();
                 }
 
                 int height = TextureSize.Height;
@@ -148,7 +159,6 @@ namespace GenImageViewer
                 cameo.Dispose();
             }
         }
-
         /// <summary>
         /// TGA Location in game resources (Art\Textrures and itc)
         /// </summary>
@@ -167,12 +177,15 @@ namespace GenImageViewer
             public string Name;
             public BIGResource BIGResource;
             public List<MappedImage> MappedImages;
-
-            public Bitmap GetBitmap(string mainFolder)
+            /// <summary>
+            /// Get bitmap from TGA image
+            /// </summary>
+            /// <returns>System.Drawing.Bitmap</returns>
+            public Bitmap GetBitmap()
             {
                 if (BIGResource != null)
                 {
-                    using (FileStream fs = new FileStream($@"{mainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = new FileStream($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
                     using (BinaryReader br = new BinaryReader(fs))
                     {
                         br.BaseStream.Position = BIGResource.Offset;
@@ -185,26 +198,50 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    return TGA.FromFile($@"{mainFolder}\{(string)TGALocation}\{Name}").ToBitmap();
+                    return TGA.FromFile($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{(string)TGALocation}\{Name}").ToBitmap();
+                }
+            }
+            public void Save(string fileName)
+            {
+                if (BIGResource != null)
+                {
+                    using (FileStream fsOpen = new FileStream($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                    using (BinaryReader br = new BinaryReader(fsOpen))
+                    {
+                        br.BaseStream.Position = BIGResource.Offset;
+                        using (FileStream fsWrite = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+                        using (StreamWriter sw = new StreamWriter(fsWrite))
+                            sw.Write(br.ReadBytes(BIGResource.Lenght));
+                    }
+                }
+                else
+                {
+                    File.Copy($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{(string)TGALocation}\{Name}", fileName, true);
                 }
             }
         }
-        public string MainFolder => _mainFolder;
-        private string _mainFolder;
-        public List<BIGFile> BIGFiles = new List<BIGFile>();
-        public List<MappedImage> MappedImages = new List<MappedImage>();
-        public List<MappedFile> MappedFiles = new List<MappedFile>();
 
+        private string _mainFolder;
+        private List<BIGFile> _bigFiles = new List<BIGFile>();
+        private List<MappedFile> _mappedFiles = new List<MappedFile>();
+        private List<MappedImage> _mappedImages = new List<MappedImage>();
+
+        private List<TGAFile> _tgaFiles = new List<TGAFile>();
         private TGALocation _tgaLocation_Art = new TGALocation(@"Art\Textures");
         private TGALocation _tgaLocation_Data = new TGALocation(@"Data\English\Art\Textures");
-
-        public List<TGAFile> TGAFiles = new List<TGAFile>();
 
         private List<MappedFile> _resourceMappedFiles;
         private List<MappedImage> _resourceMappedImages;
 
         private List<TGAFile> _resourceTGAFiles_Art;
         private List<TGAFile> _resourceTGAFiles_Data;
+
+        public string MainFolder => _mainFolder;
+
+        public List<BIGFile> BIGFiles { get => _bigFiles; }
+        public List<MappedFile> MappedFiles { get => _mappedFiles; }
+        public List<MappedImage> MappedImages { get => _mappedImages; }
+        public List<TGAFile> TGAFiles { get => _tgaFiles; }
 
         public void Load(string mainFolder)
         {
@@ -319,7 +356,7 @@ namespace GenImageViewer
         //---BIG Loading---//
         private void LoadFromBIGs()
         {
-            BIGFiles = Directory.GetFiles(MainFolder, "*.big", SearchOption.TopDirectoryOnly).Reverse().Select(x => new BIGFile() { FileName = x }).ToList();
+            _bigFiles = Directory.GetFiles(MainFolder, "*.big", SearchOption.TopDirectoryOnly).Reverse().Select(x => new BIGFile(this) { FileName = x }).ToList();
 
             foreach (BIGFile bIGFile in BIGFiles)
             {
@@ -621,8 +658,11 @@ namespace GenImageViewer
             {
                 mappedImage.Name = lines[index].Substring(lines[index].LastIndexOf(' ') + 1);
                 mappedImage.Texture = lines[index + 1].Substring(lines[index + 1].LastIndexOf('=') + 1).TrimStart();
-                mappedImage.TextureSize.Width = int.Parse(lines[index + 2].Substring(lines[index + 2].LastIndexOf('=') + 1).TrimStart());
-                mappedImage.TextureSize.Height = int.Parse(lines[index + 3].Substring(lines[index + 3].LastIndexOf('=') + 1).TrimStart());
+                mappedImage.TextureSize = new MappedTextureSize()
+                {
+                    Width = int.Parse(lines[index + 2].Substring(lines[index + 2].LastIndexOf('=') + 1).TrimStart()),
+                    Height = int.Parse(lines[index + 3].Substring(lines[index + 3].LastIndexOf('=') + 1).TrimStart())
+                };
 
                 string[] tempLines = lines[index + 4].Split(':').Select(x => x.TrimStart()).ToArray();
                 mappedImage.Coords = new MappedCoordinates()
@@ -641,7 +681,7 @@ namespace GenImageViewer
             return mappedImage;
         }
         //---Get _resourceMappedImages---//
-      
+
         /// <summary>
         /// Получить MappedFile если он существует, иначе null
         /// </summary>

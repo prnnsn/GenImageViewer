@@ -14,7 +14,7 @@ namespace GenImageViewer
     public partial class MainWindow : Window
     {
         private static MainWindow mainWindow;
-        public static GameResource GameResources;
+        public GameResource GameResources;
         public MainWindow()
         {
             InitializeComponent();
@@ -113,7 +113,7 @@ namespace GenImageViewer
             }
             private static void LoadTGAToView(GameResource.TGAFile tgaFile)
             {
-                Bitmap bitmap = tgaFile.GetBitmap(GameResources.MainFolder);
+                Bitmap bitmap = tgaFile.GetBitmap();
 
                 ParentImage.Source = ToWpfBitmap(bitmap);
                 ParentImage.Visibility = Visibility.Visible;
