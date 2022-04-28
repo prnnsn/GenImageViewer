@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
-using static GenImageViewer.GameResource;
 
 namespace GenImageViewer
 {
@@ -15,14 +14,8 @@ namespace GenImageViewer
         /// BIG file is main flie type for packing game resources
         /// </summary>
         public class BIGFile
-        {
-            private GameResource _gameResource;
-            public GameResource GameResource => _gameResource;
+        {           
             public string FileName;
-            public BIGFile(GameResource gameResource)
-            {
-                _gameResource = gameResource;
-            }
         }
         /// <summary>
         /// If file (TGA or MappedFile) located in BIG file then its not null
@@ -62,6 +55,8 @@ namespace GenImageViewer
         /// </summary>
         public class MappedFile
         {
+            private GameResource _gameResource;
+            public GameResource GameResource => _gameResource;
             public static int Sort(MappedFile file1, MappedFile file2)
             {
                 if (file2.Name == null && file1.Name == null) return 0;
@@ -72,6 +67,10 @@ namespace GenImageViewer
             public string Name;
             public BIGResource BIGResource;
             public List<MappedImage> MappedImages;
+            public MappedFile(GameResource gameResource)
+            {
+                _gameResource = gameResource;
+            }
         }
         /// <summary>
         /// Data of mapped image in TGA from MappedFile (MappedImages ini file)
@@ -107,7 +106,7 @@ namespace GenImageViewer
                 Bitmap bitmap;
                 if (TGAFile.BIGResource != null)
                 {
-                    using (FileStream fs = new FileStream($@"{TGAFile.BIGResource.BIGRFile.GameResource.MainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = new FileStream($@"{ParentMappedFile.GameResource.MainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
                     using (BinaryReader br = new BinaryReader(fs))
                     {
                         br.BaseStream.Position = TGAFile.BIGResource.Offset;
@@ -120,7 +119,7 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    bitmap = TGA.FromFile($@"{TGAFile.BIGResource.BIGRFile.GameResource.MainFolder}\{(string)TGAFile.TGALocation}\{TGAFile.Name}").ToBitmap();
+                    bitmap = TGA.FromFile($@"{ParentMappedFile.GameResource.MainFolder}\{(string)TGAFile.TGALocation}\{TGAFile.Name}").ToBitmap();
                 }
 
                 int height = TextureSize.Height;
@@ -173,10 +172,16 @@ namespace GenImageViewer
         /// </summary>
         public class TGAFile
         {
+            private GameResource _gameResource;
+            public GameResource GameResource => _gameResource;
             public TGALocation TGALocation;
             public string Name;
             public BIGResource BIGResource;
             public List<MappedImage> MappedImages;
+            public TGAFile(GameResource gameResource)
+            {
+                _gameResource = gameResource;
+            }
             /// <summary>
             /// Get bitmap from TGA image
             /// </summary>
@@ -185,7 +190,7 @@ namespace GenImageViewer
             {
                 if (BIGResource != null)
                 {
-                    using (FileStream fs = new FileStream($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                    using (FileStream fs = new FileStream($@"{GameResource.MainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
                     using (BinaryReader br = new BinaryReader(fs))
                     {
                         br.BaseStream.Position = BIGResource.Offset;
@@ -198,14 +203,14 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    return TGA.FromFile($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{(string)TGALocation}\{Name}").ToBitmap();
+                    return TGA.FromFile($@"{GameResource.MainFolder}\{(string)TGALocation}\{Name}").ToBitmap(); //баг
                 }
             }
             public void Save(string fileName)
             {
                 if (BIGResource != null)
                 {
-                    using (FileStream fsOpen = new FileStream($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                    using (FileStream fsOpen = new FileStream($@"{GameResource.MainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
                     using (BinaryReader br = new BinaryReader(fsOpen))
                     {
                         br.BaseStream.Position = BIGResource.Offset;
@@ -216,7 +221,7 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    File.Copy($@"{BIGResource.BIGRFile.GameResource.MainFolder}\{(string)TGALocation}\{Name}", fileName, true);
+                    File.Copy($@"{GameResource.MainFolder}\{(string)TGALocation}\{Name}", fileName, true);
                 }
             }
         }
@@ -278,7 +283,7 @@ namespace GenImageViewer
                                 mappedFile = MappedFiles[k];
                                 goto close;
                             }
-                        mappedFile = new MappedFile()
+                        mappedFile = new MappedFile(this)
                         {
                             BIGResource = _resourceMappedImages[i].ParentMappedFile.BIGResource,
                             MappedImages = new List<MappedImage>(),
@@ -306,7 +311,7 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    TGAFile tgaFile = new TGAFile()
+                    TGAFile tgaFile = new TGAFile(this)
                     {
                         TGALocation = resourceTGAFiles[index].TGALocation,
                         BIGResource = resourceTGAFiles[index].BIGResource,
@@ -324,7 +329,7 @@ namespace GenImageViewer
                             mappedFile = MappedFiles[k];
                             goto close;
                         }
-                    mappedFile = new MappedFile()
+                    mappedFile = new MappedFile(this)
                     {
                         BIGResource = _resourceMappedImages[i].ParentMappedFile.BIGResource,
                         MappedImages = new List<MappedImage>(),
@@ -356,7 +361,7 @@ namespace GenImageViewer
         //---BIG Loading---//
         private void LoadFromBIGs()
         {
-            _bigFiles = Directory.GetFiles(MainFolder, "*.big", SearchOption.TopDirectoryOnly).Reverse().Select(x => new BIGFile(this) { FileName = x }).ToList();
+            _bigFiles = Directory.GetFiles(MainFolder, "*.big", SearchOption.TopDirectoryOnly).Reverse().Select(x => new BIGFile() { FileName = x }).ToList();
 
             foreach (BIGFile bIGFile in BIGFiles)
             {
@@ -385,10 +390,10 @@ namespace GenImageViewer
             MappedFile resourceMappedFile = GetResourceMappedFile(fileName);
             if (resourceMappedFile == null)
             {
-                _resourceMappedFiles.Add(new MappedFile()
+                _resourceMappedFiles.Add(new MappedFile(this)
                 {
                     BIGResource = new BIGResource()
-                    {
+                    {                  
                         BIGRFile = bIGFile,
                         Lenght = (int)bigArchive.Entries[entryIndex].Length,
                         Offset = (int)bigArchive.Entries[entryIndex].Offset,
@@ -400,7 +405,7 @@ namespace GenImageViewer
             else
             {
                 resourceMappedFile.BIGResource = new BIGResource()
-                {
+                {                   
                     BIGRFile = bIGFile,
                     Lenght = (int)bigArchive.Entries[entryIndex].Length,
                     Offset = (int)bigArchive.Entries[entryIndex].Offset,
@@ -422,7 +427,7 @@ namespace GenImageViewer
                     _resourceTGAFiles_Art[k].BIGResource.Offset = (int)bigArchive.Entries[entryIndex].Offset;
                     goto close;
                 }
-            _resourceTGAFiles_Art.Add(new TGAFile()
+            _resourceTGAFiles_Art.Add(new TGAFile(this)
             {
                 TGALocation = _tgaLocation_Art,
                 Name = System.IO.Path.GetFileName(bigArchive.Entries[entryIndex].Name),
@@ -447,7 +452,7 @@ namespace GenImageViewer
                     _resourceTGAFiles_Data[k].BIGResource.Offset = (int)bigArchive.Entries[entryIndex].Offset;
                     goto close;
                 }
-            _resourceTGAFiles_Data.Add(new TGAFile()
+            _resourceTGAFiles_Data.Add(new TGAFile(this)
             {
                 TGALocation = _tgaLocation_Data,
                 Name = name,
@@ -501,7 +506,7 @@ namespace GenImageViewer
             MappedFile resourceMappedFile = GetResourceMappedFile(fileName);
             if (resourceMappedFile == null)
             {
-                _resourceMappedFiles.Add(new MappedFile()
+                _resourceMappedFiles.Add(new MappedFile(this)
                 {
                     BIGResource = null,
                     Name = fileName
@@ -524,7 +529,7 @@ namespace GenImageViewer
                     _resourceTGAFiles_Art[k].BIGResource = null;
                     goto close;
                 }
-            _resourceTGAFiles_Art.Add(new TGAFile()
+            _resourceTGAFiles_Art.Add(new TGAFile(this)
             {
                 TGALocation = _tgaLocation_Art,
                 Name = name,
@@ -541,7 +546,7 @@ namespace GenImageViewer
                     _resourceTGAFiles_Data[k].BIGResource = null;
                     goto close;
                 }
-            _resourceTGAFiles_Data.Add(new TGAFile()
+            _resourceTGAFiles_Data.Add(new TGAFile(this)
             {
                 TGALocation = _tgaLocation_Data,
                 Name = name,
