@@ -28,143 +28,207 @@
                     Header="Выбрать папку"
                     Click="MenuItem_Click" />
             </MenuItem>
-            <CheckBox
-                Focusable="False"
-                Content="Сетка"
-                IsChecked="False"
-                Checked="CheckBox_Checked"
-                Unchecked="CheckBox_Unchecked" />
+            <MenuItem
+                Header="Вид">
+                <CheckBox
+                    Focusable="False"
+                    Content="Сетка"
+                    IsChecked="False"
+                    Checked="CheckBox_Checked"
+                    Unchecked="CheckBox_Unchecked" />
+            </MenuItem>
         </Menu>
-        <Grid
-            Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition
-                    Width="295*" />
-                <ColumnDefinition
-                    Width="456*" />
-            </Grid.ColumnDefinitions>
-            <Grid>
+        <Border
+            Grid.Row="1"
+            Margin="5"
+            BorderBrush="LightGray"
+            BorderThickness="1">
+            <Grid
+                Margin="5">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
+                    <ColumnDefinition
+                        Width="295*" />
+                    <ColumnDefinition
+                        Width="456*" />
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition
-                        Height="Auto" />
-                    <RowDefinition />
-                    <RowDefinition
-                        Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock>TGA Files:</TextBlock>
-                <TextBlock
-                    Grid.Column="1">MappedImages:</TextBlock>
-                <ListBox
-                    x:Name="lstTGA"
-                    Grid.Row="1"
-                    SelectionChanged="lstTGA_SelectionChanged" />
-                <ListBox
-                    Grid.Column="1"
-                    Grid.Row="1"
-                    x:Name="lstImages" />
-                <Grid
-                    Grid.Row="2"
-                    Grid.ColumnSpan="2">
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition
-                            Height="Auto" />
-                        <RowDefinition
-                            Height="Auto" />
-                        <RowDefinition
-                            Height="Auto" />
+                        <RowDefinition />
                         <RowDefinition
                             Height="Auto" />
                     </Grid.RowDefinitions>
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Grid.Row="0"
-                        Grid.Column="0">
-                        <TextBlock>Всего: <Run /></TextBlock>
-                    </StackPanel>
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Grid.Row="1"
-                        Grid.Column="0">
-                        <TextBlock>TGA файлов: <Run /></TextBlock>
-                        <TextBlock
-                            x:Name="infoTotalTGACount">0</TextBlock>
-                    </StackPanel>
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Grid.Row="2"
-                        Grid.Column="0">
-                        <TextBlock>MappedImage: <Run /></TextBlock>
-                        <TextBlock
-                            x:Name="infoTotalMappedImages">0</TextBlock>
-                    </StackPanel>
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Grid.Row="3"
-                        Grid.Column="0">
-                        <TextBlock>MappedImage INI: <Run /></TextBlock>
-                        <TextBlock
-                            x:Name="infoTotalINI">0</TextBlock>
-                    </StackPanel>
 
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Grid.Row="0"
-                        Grid.Column="1">
-                        <TextBlock>TGA: <Run /></TextBlock>
-                    </StackPanel>
-                    <StackPanel
-                        Orientation="Horizontal"
+                    <Border
+                        Grid.Column="0"
+                        BorderThickness="1"
+                        BorderBrush="LightGray"
+                        Margin="5">
+                        <Grid
+                            Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition
+                                    Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock>TGA Files:</TextBlock>
+                            <ListBox
+                                Style="{DynamicResource ListBoxStyle}"
+                                x:Name="lstTGA"
+                                Grid.Row="1"
+                                SelectionChanged="lstTGA_SelectionChanged" />
+                        </Grid>
+                    </Border>
+
+                    <Border
+                        Grid.Column="1"
+                        BorderThickness="1"
+                        BorderBrush="LightGray"
+                        Margin="5">
+                        <Grid
+                            Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition
+                                    Height="Auto" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                Grid.Column="1">MappedImages:</TextBlock>
+                            <ListBox
+                                Style="{DynamicResource ListBoxStyle}"
+                                Grid.Column="1"
+                                Grid.Row="1"
+                                x:Name="lstImages" />
+                        </Grid>
+                    </Border>
+
+                    <Border
+                        Grid.Column="0"
                         Grid.Row="1"
-                        Grid.Column="1">
-                        <TextBlock
-                            x:Name="infoTGACount">0</TextBlock>
-                    </StackPanel>
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Grid.Row="2"
-                        Grid.Column="1">
-                        <TextBlock
-                            x:Name="infoMappedImages">0</TextBlock>
-                    </StackPanel>
-                    <StackPanel
-                        Orientation="Horizontal"
-                        Grid.Row="3"
-                        Grid.Column="1">
-                        <TextBlock>-</TextBlock>
-                    </StackPanel>
+                        BorderThickness="1"
+                        BorderBrush="LightGray"
+                        Margin="5">
+                        <Grid
+                            Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="0"
+                                Grid.Column="0">
+                                <TextBlock>Всего: <Run /></TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="1"
+                                Grid.Column="0">
+                                <TextBlock>TGA файлов: <Run /></TextBlock>
+                                <TextBlock
+                                    x:Name="infoTotalTGACount">0</TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="2"
+                                Grid.Column="0">
+                                <TextBlock>MappedImage: <Run /></TextBlock>
+                                <TextBlock
+                                    x:Name="infoTotalMappedImages">0</TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="3"
+                                Grid.Column="0">
+                                <TextBlock>MappedImage INI: <Run /></TextBlock>
+                                <TextBlock
+                                    x:Name="infoTotalINI">0</TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border
+                        Grid.Column="1"
+                        Grid.Row="1"
+                        BorderThickness="1"
+                        BorderBrush="LightGray"
+                        Margin="5">
+                        <Grid
+                            Margin="5">
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="0"
+                                Grid.Column="1">
+                                <TextBlock>Выбранный: <Run /></TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="1"
+                                Grid.Column="1">
+                                <TextBlock>TGA файлов: <Run /></TextBlock>
+                                <TextBlock
+                                    x:Name="infoTGACount">0</TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="2"
+                                Grid.Column="1">
+                                <TextBlock>MappedImage: <Run /></TextBlock>
+                                <TextBlock
+                                    x:Name="infoMappedImages">0</TextBlock>
+                            </StackPanel>
+                            <StackPanel
+                                Orientation="Horizontal"
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                Visibility="Collapsed">
+                                <TextBlock>-</TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                 </Grid>
-            </Grid>
 
-            <Grid
-                Grid.Column="1">
-                <Grid
-                    x:Name="grdImage">
-                    <Image
-                        x:Name="imgTGA" />
+                <Border
+                    Grid.Column="1"
+                    BorderThickness="1"
+                    BorderBrush="LightGray"
+                    Margin="5">
                     <Grid
-                        x:Name="grdButtons"
-                        Height="{Binding ElementName=imgTGA, Path=ActualHeight}"
-                        Width="{Binding ElementName=imgTGA, Path=ActualWidth}">
-                        <!--<Grid.Background>
+                        Margin="5">
+                        <Grid
+                            x:Name="grdImage">
+                            <Image
+                                x:Name="imgTGA" />
+                            <Grid
+                                x:Name="grdButtons"
+                                Height="{Binding ElementName=imgTGA, Path=ActualHeight}"
+                                Width="{Binding ElementName=imgTGA, Path=ActualWidth}">
+                                <!--<Grid.Background>
                         <SolidColorBrush Color="Green" Opacity="0.5"/>
                     </Grid.Background>-->
+                            </Grid>
+                            <Control
+                                Width="40"
+                                Height="40"
+                                Template="{DynamicResource Control_Grid}"
+                                Visibility="Collapsed" />
+                        </Grid>
                     </Grid>
-                    <Control
-                        Width="40"
-                        Height="40"
-                        Template="{DynamicResource Control_Grid}"
-                        Visibility="Collapsed" />
-                </Grid>
+                </Border>
             </Grid>
-        </Grid>
+        </Border>
+
         <StatusBar
             Grid.Row="2">
             <StatusBarItem>Выбранная папка:</StatusBarItem>
@@ -172,5 +236,4 @@
                 x:Name="stbSelectedFolder"></StatusBarItem>
         </StatusBar>
     </Grid>
-
 </Window>
