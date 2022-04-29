@@ -166,6 +166,36 @@ namespace GenImageViewer
                 lstImages.ScrollIntoView(listBoxItem);
                 lstImages.SelectedItem = listBoxItem;
             };
+
+            ContextMenu contextMenu = new ContextMenu();
+            {
+                MenuItem menuItemSaveAs = new MenuItem() { Header = "Сохранить как.." };
+                {
+                    MenuItem menuItemSaveAsTGA = new MenuItem() { Header = "TGA" };
+                    menuItemSaveAsTGA.Click += delegate
+                    {
+                        string name = SaveFile();
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            mappedImage.Save(name + ".tga");
+                        }
+                    };
+                    //
+                    menuItemSaveAs.Items.Add(menuItemSaveAsTGA);
+                }
+                MenuItem menuItemCopyCode = new MenuItem() { Header = "Копировать код" };
+                menuItemCopyCode.Click += delegate
+                {
+                    mappedImage.CopyMappCodeToClipboard();
+                };
+                //
+                contextMenu.Items.Add(menuItemSaveAs);
+                contextMenu.Items.Add(menuItemCopyCode);
+            }
+
+            control.ContextMenu = contextMenu;
+            listBoxItem.ContextMenu = contextMenu;
+
             mappedImageControls.Add(control);
             grdButtons.Children.Add(control);
             lstImages.Items.Add(listBoxItem);
@@ -243,8 +273,8 @@ namespace GenImageViewer
             imgTGA.Source = null;
             grdButtons.Children.Clear();
             lstTGA.Items.Clear();
-            
-            infoTGACount.Text = "0";         
+
+            infoTGACount.Text = "0";
 
             GameResources.Load(folder);
 
@@ -275,7 +305,39 @@ namespace GenImageViewer
             };
             ToolTipService.SetShowDuration(listBoxItem, 60000);
             ToolTipService.SetPlacement(listBoxItem, System.Windows.Controls.Primitives.PlacementMode.Top);
+
+            ContextMenu contextMenu = new ContextMenu();
+            {
+                MenuItem menuItemSaveAs = new MenuItem() { Header = "Сохранить как.." };
+                {
+                    MenuItem menuItemSaveAsTGA = new MenuItem() { Header = "TGA" };
+                    menuItemSaveAsTGA.Click += delegate
+                    {
+                        string name = SaveFile();
+                        if (!string.IsNullOrEmpty(name))
+                        {
+                            tgaFile.Save(name + ".tga");
+                        }
+                    };
+                    //
+                    menuItemSaveAs.Items.Add(menuItemSaveAsTGA);
+                }
+                //
+                contextMenu.Items.Add(menuItemSaveAs);
+            }
+
+            listBoxItem.ContextMenu = contextMenu;
             return listBoxItem;
+        }
+        private string SaveFile()
+        {
+            using (System.Windows.Forms.SaveFileDialog fileFialog = new System.Windows.Forms.SaveFileDialog())
+            {
+                if (fileFialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    return fileFialog.FileName;
+                else
+                    return "";
+            }
         }
 
         public MainWindow()

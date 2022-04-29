@@ -215,7 +215,7 @@ namespace GenImageViewer
                     {
                         br.BaseStream.Position = BIGResource.Offset;
                         using (FileStream fsWrite = new FileStream(fileName, FileMode.Create, FileAccess.Write))
-                        using (StreamWriter sw = new StreamWriter(fsWrite))
+                        using (BinaryWriter sw = new BinaryWriter(fsWrite))
                             sw.Write(br.ReadBytes(BIGResource.Lenght));
                     }
                 }
