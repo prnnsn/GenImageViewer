@@ -26,7 +26,7 @@
                 Header="Файл">
                 <MenuItem
                     Header="Выбрать папку"
-                    Click="MenuItem_Click" />
+                    Click="miSelectFolder_Click" />
             </MenuItem>
             <MenuItem
                 Header="Вид">
@@ -209,7 +209,8 @@
                         <Grid
                             x:Name="grdImage">
                             <Image
-                                x:Name="imgTGA" />
+                                x:Name="imgTGA" 
+                                SizeChanged="imgTGA_SizeChanged"/>
                             <Grid
                                 x:Name="grdButtons"
                                 Height="{Binding ElementName=imgTGA, Path=ActualHeight}"
