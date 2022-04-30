@@ -14,7 +14,7 @@ namespace GenImageViewer
         /// BIG file is main flie type for packing game resources
         /// </summary>
         public class BIGFile
-        {           
+        {
             public string FileName;
         }
         /// <summary>
@@ -393,7 +393,7 @@ namespace GenImageViewer
                 _resourceMappedFiles.Add(new MappedFile(this)
                 {
                     BIGResource = new BIGResource()
-                    {                  
+                    {
                         BIGRFile = bIGFile,
                         Lenght = (int)bigArchive.Entries[entryIndex].Length,
                         Offset = (int)bigArchive.Entries[entryIndex].Offset,
@@ -405,7 +405,7 @@ namespace GenImageViewer
             else
             {
                 resourceMappedFile.BIGResource = new BIGResource()
-                {                   
+                {
                     BIGRFile = bIGFile,
                     Lenght = (int)bigArchive.Entries[entryIndex].Length,
                     Offset = (int)bigArchive.Entries[entryIndex].Offset,
@@ -571,10 +571,12 @@ namespace GenImageViewer
             {
                 List<string> lines = GetMappedImageLines(_resourceMappedFiles[i]);
 
-                for (int n = 0; n < lines.Count; n += 7)
+                for (int n = 0; n < lines.Count; n++)
                 {
                     MappedImage mappedImage = GetMappedImageFromLines(lines, n);
-                    if (mappedImage == null) continue;
+                    if (mappedImage == null)
+                        continue;
+                    else n += 6;
 
                     for (int m = 0; m < _resourceMappedImages.Count; m++)
                         if (_resourceMappedImages[m].Name == mappedImage.Name)
@@ -661,7 +663,22 @@ namespace GenImageViewer
             MappedImage mappedImage = new MappedImage();
             try
             {
-                mappedImage.Name = lines[index].Substring(lines[index].LastIndexOf(' ') + 1);
+                if (!lines[index].StartsWith("MappedImage", StringComparison.OrdinalIgnoreCase)) return null;
+                {
+                    string s = lines[index].Trim();
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 12; i < s.Length; i++)
+                        if (Char.IsLetterOrDigit(s[i]) || (s[i] == '_') || (s[i] == '-'))
+                        {
+                            sb.Append(s[i]);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    mappedImage.Name = sb.ToString();
+                    if (string.IsNullOrEmpty(mappedImage.Name.ToString())) return null;
+                }
                 mappedImage.Texture = lines[index + 1].Substring(lines[index + 1].LastIndexOf('=') + 1).TrimStart();
                 mappedImage.TextureSize = new MappedTextureSize()
                 {
