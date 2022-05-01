@@ -64,26 +64,26 @@ namespace GenImageViewer
         {
             ImageSize = new System.Windows.Size()
             {
-                Width = imgTGA.ActualWidth,
-                Height = imgTGA.ActualHeight
+                Width = grdButtons.ActualWidth,
+                Height = grdButtons.ActualHeight
             };
-
-            if (TGASize.Width > TGASize.Height)
-            {
-                double k = TGASize.Width / TGASize.Height;
-                ImageSize.Height = ImageSize.Width / k;
-            }
-            else
-            {
-                double k = TGASize.Height / TGASize.Width;
-                ImageSize.Width = ImageSize.Height / k;
-            }
 
             ImageToTGA = new Ratio()
             {
                 X = ImageSize.Width / TGASize.Width,
                 Y = ImageSize.Height / TGASize.Height
             };
+        }
+        private void CalcRatioImageToTGA(System.Windows.Size size)
+        {
+            ImageSize = size;
+            ImageToTGA = new Ratio()
+            {
+                X = ImageSize.Width / TGASize.Width,
+                Y = ImageSize.Height / TGASize.Height
+            };
+            infoTGACount.Text = "X = " + ImageToTGA.X;
+            infoMappedImages.Text = "Y = " + ImageToTGA.Y;
         }
         private void SelectTGAItem(int index)
         {
@@ -117,7 +117,7 @@ namespace GenImageViewer
         {
             Control control = new Control()
             {
-                Margin = GetMappedImageThickness(mappedImage),
+                //Margin = GetMappedImageThickness(mappedImage),
                 ToolTip =
                     $"{(mappedImage.ParentMappedFile.BIGResource != null ? $"BIG FIle = {mappedImage.ParentMappedFile.BIGResource.BIGRFile.FileName}\r\n" : "")}" +
                     $"INI = {mappedImage.ParentMappedFile.Name}\r\n" +
@@ -174,10 +174,10 @@ namespace GenImageViewer
                     MenuItem menuItemSaveAsTGA = new MenuItem() { Header = "TGA" };
                     menuItemSaveAsTGA.Click += delegate
                     {
-                        string name = SaveFile();
+                        string name = SaveFile(".tga");
                         if (!string.IsNullOrEmpty(name))
                         {
-                            mappedImage.Save(name + ".tga");
+                            mappedImage.Save(name);
                         }
                     };
                     //
@@ -192,31 +192,15 @@ namespace GenImageViewer
                 contextMenu.Items.Add(menuItemSaveAs);
                 contextMenu.Items.Add(menuItemCopyCode);
             }
-
+            control.Tag = mappedImage;
             control.ContextMenu = contextMenu;
             listBoxItem.ContextMenu = contextMenu;
 
             mappedImageControls.Add(control);
             grdButtons.Children.Add(control);
             lstImages.Items.Add(listBoxItem);
-        }
-        private Thickness GetMappedImageThickness(GameResource.MappedImage mappedImage)
-        {
-            Ratio tgaToMapped = new Ratio();
-            if (TGASize.Width != mappedImage.TextureSize.Width)
-            {
-                tgaToMapped.X = TGASize.Width / (mappedImage.Coords.Right - mappedImage.Coords.Left);
-            }
-            if (TGASize.Height != mappedImage.TextureSize.Height)
-            {
-                tgaToMapped.Y = TGASize.Height / (mappedImage.Coords.Bottom - mappedImage.Coords.Top);
-            }
 
-            return new Thickness(
-                        (double)mappedImage.Coords.Left * tgaToMapped.X * ImageToTGA.X,
-                        (double)mappedImage.Coords.Top * tgaToMapped.Y * ImageToTGA.Y,
-                        (double)(mappedImage.TextureSize.Width - mappedImage.Coords.Right) * tgaToMapped.X * ImageToTGA.X,
-                        (double)(mappedImage.TextureSize.Height - mappedImage.Coords.Bottom) * tgaToMapped.Y * ImageToTGA.Y);
+            ResizeMappedImageControl(mappedImage, control);
         }
         private void ChangeMappedImageControlStyle(Control control)
         {
@@ -227,11 +211,30 @@ namespace GenImageViewer
         }
         private void SetGridMappedImageControlStyle(Control control) => control.Template = (ControlTemplate)mainWindow.FindResource("Control_Grid");
         private void SetNormalMappedImageControlStyle(Control control) => control.Template = (ControlTemplate)mainWindow.FindResource("Control_Normal");
+        private void ResizeMappedImageControl(GameResource.MappedImage mappedImage, Control control)
+        {
+            Ratio tgaToMapped = new Ratio();
+            if (TGASize.Width != mappedImage.TextureSize.Width)
+            {
+                //tgaToMapped.X = TGASize.Width / (mappedImage.Coords.Right - mappedImage.Coords.Left);
+                tgaToMapped.X = TGASize.Width / mappedImage.TextureSize.Width;
+            }
+            if (TGASize.Height != mappedImage.TextureSize.Height)
+            {
+                //tgaToMapped.Y = TGASize.Height / (mappedImage.Coords.Bottom - mappedImage.Coords.Top);
+                tgaToMapped.Y = TGASize.Height / mappedImage.TextureSize.Height;
+            }
+            control.Width = (mappedImage.Coords.Right - mappedImage.Coords.Left) * tgaToMapped.X * ImageToTGA.X;
+            control.Height = (mappedImage.Coords.Bottom - mappedImage.Coords.Top) * tgaToMapped.Y * ImageToTGA.Y;
+            Canvas.SetLeft(control, mappedImage.Coords.Left * tgaToMapped.X * ImageToTGA.X);
+            Canvas.SetTop(control, mappedImage.Coords.Top * tgaToMapped.Y * ImageToTGA.Y);
+        }
         private void ResizeMappedImageControls()
         {
             for (int i = 0; i < mappedImageControls.Count; i++)
             {
-                mappedImageControls[i].Margin = GetMappedImageThickness(GameResources.MappedImages[i]);
+                ResizeMappedImageControl(mappedImageControls[i].Tag as GameResource.MappedImage, mappedImageControls[i]);
+                //ResizeMappedImageControl(GameResources.MappedImages[i], mappedImageControls[i]);
             }
         }
 
@@ -313,10 +316,10 @@ namespace GenImageViewer
                     MenuItem menuItemSaveAsTGA = new MenuItem() { Header = "TGA" };
                     menuItemSaveAsTGA.Click += delegate
                     {
-                        string name = SaveFile();
+                        string name = SaveFile(".tga");
                         if (!string.IsNullOrEmpty(name))
                         {
-                            tgaFile.Save(name + ".tga");
+                            tgaFile.Save(name);
                         }
                     };
                     //
@@ -329,12 +332,18 @@ namespace GenImageViewer
             listBoxItem.ContextMenu = contextMenu;
             return listBoxItem;
         }
-        private string SaveFile()
+        private string SaveFile(string extension)
         {
             using (System.Windows.Forms.SaveFileDialog fileFialog = new System.Windows.Forms.SaveFileDialog())
             {
                 if (fileFialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                    return fileFialog.FileName;
+                {
+                    string s = Path.GetExtension(fileFialog.FileName).ToLower();
+                    if (string.IsNullOrEmpty(s))
+                        return fileFialog.FileName + extension;
+                    else
+                        return fileFialog.FileName.Remove(fileFialog.FileName.Length - s.Length, 4) + extension;
+                }
                 else
                     return "";
             }
@@ -351,11 +360,11 @@ namespace GenImageViewer
         private void imgTGA_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (mappedImageControls != null)
-            {
-                ImageSize = e.NewSize;
-                CalcRatioImageToTGA();
-                ResizeMappedImageControls();
-            }
+                if (e.NewSize.Width != 0 && e.NewSize.Height != 0)
+                {
+                    CalcRatioImageToTGA(e.NewSize);
+                    ResizeMappedImageControls();
+                }
         }
     }
 }

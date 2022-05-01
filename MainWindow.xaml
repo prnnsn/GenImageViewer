@@ -209,21 +209,13 @@
                         <Grid
                             x:Name="grdImage">
                             <Image
-                                x:Name="imgTGA" 
-                                SizeChanged="imgTGA_SizeChanged"/>
-                            <Grid
+                                x:Name="imgTGA" />
+                            <Canvas
                                 x:Name="grdButtons"
+                                SizeChanged="imgTGA_SizeChanged"
                                 Height="{Binding ElementName=imgTGA, Path=ActualHeight}"
                                 Width="{Binding ElementName=imgTGA, Path=ActualWidth}">
-                                <!--<Grid.Background>
-                        <SolidColorBrush Color="Green" Opacity="0.5"/>
-                    </Grid.Background>-->
-                            </Grid>
-                            <Control
-                                Width="40"
-                                Height="40"
-                                Template="{DynamicResource Control_Grid}"
-                                Visibility="Collapsed" />
+                            </Canvas>
                         </Grid>
                     </Grid>
                 </Border>
