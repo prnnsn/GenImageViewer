@@ -82,8 +82,6 @@ namespace GenImageViewer
                 X = ImageSize.Width / TGASize.Width,
                 Y = ImageSize.Height / TGASize.Height
             };
-            infoTGACount.Text = "X = " + ImageToTGA.X;
-            infoMappedImages.Text = "Y = " + ImageToTGA.Y;
         }
         private void SelectTGAItem(int index)
         {
@@ -111,6 +109,8 @@ namespace GenImageViewer
             {
                 AddMapedImageControls(tgaFile.MappedImages[i]);
             }
+
+            infoMappedImages.Text = tgaFile.MappedImages.Count.ToString();
         }
 
         private void AddMapedImageControls(GameResource.MappedImage mappedImage)
@@ -234,7 +234,6 @@ namespace GenImageViewer
             for (int i = 0; i < mappedImageControls.Count; i++)
             {
                 ResizeMappedImageControl(mappedImageControls[i].Tag as GameResource.MappedImage, mappedImageControls[i]);
-                //ResizeMappedImageControl(GameResources.MappedImages[i], mappedImageControls[i]);
             }
         }
 
