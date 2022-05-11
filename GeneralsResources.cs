@@ -85,6 +85,44 @@ namespace GenImageViewer
             public MappedFile ParentMappedFile;
             public TGAFile TGAFile;
 
+            /// <summary>
+            /// Get MappedImage code by MappedImage object
+            /// </summary>
+            /// <param name="mappedImage">MappedImage object</param>
+            /// <returns>MappedImage code (string)</returns>
+            public static string GetMappedCode(MappedImage mappedImage)
+            {
+                return
+                    $"MappedImage {mappedImage.Name}\r\n" +
+                    $"  Texture {mappedImage.Texture}\r\n" +
+                    $"  TextureWidth = {mappedImage.TextureSize.Width}\r\n" +
+                    $"  TextureHeight = {mappedImage.TextureSize.Height}\r\n" +
+                    $"  Coords = " +
+                            $"Left: {mappedImage.Coords.Left} " +
+                            $"Top: {mappedImage.Coords.Top} " +
+                            $"Right: {mappedImage.Coords.Right} " +
+                            $"Bottom: {mappedImage.Coords.Bottom}\r\n" +
+                    $"  Status = {mappedImage.Status}\r\n" +
+                    $"End";
+            }
+            /// <summary>
+            /// Save MappedImage code to file (for example, INI)
+            /// </summary>
+            /// <param name="mappedImage">MappedImage object</param>
+            /// <param name="name">Name for save</param>
+            /// <param name="rewrite">If rewrite = true, then create new file with code, else add code in exist file</param>
+            public static void SaveMappedCode(MappedImage mappedImage, string name, bool rewrite)
+            {
+                if (rewrite)
+                {
+                    File.WriteAllText(name, GetMappedCode(mappedImage));
+                }
+                else
+                {
+                    File.AppendAllText(name, GetMappedCode(mappedImage));
+                }
+            }
+
             public void CopyMappCodeToClipboard()
             {
                 string s =
