@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -260,13 +257,18 @@ namespace GenImageViewer
 
         private void miSelectFolder_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            using (var dialog = new WK.Libraries.BetterFolderBrowserNS.BetterFolderBrowser
+            {
+                Title = "Выберете папку с ресурсами",
+                Multiselect = false   
+            })
+            {
+                System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+                if (string.IsNullOrEmpty(dialog.SelectedFolder))
+                    return;
 
-            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
-            if (string.IsNullOrEmpty(dialog.SelectedPath))
-                return;
-
-            SelectGameFolder(dialog.SelectedPath);
+                SelectGameFolder(dialog.SelectedPath);
+            }        
         }
 
         public void SelectGameFolder(string folder)
@@ -321,8 +323,16 @@ namespace GenImageViewer
                             tgaFile.Save(name);
                         }
                     };
+
+                    MenuItem menuItemSaveAsEx = new MenuItem() { Header = "Расширенное" };
+                    menuItemSaveAsEx.Click += delegate
+                    {
+                        windowSaveTGAEx windowSaveTGAEx = new windowSaveTGAEx(tgaFile);
+                        windowSaveTGAEx.ShowDialog();
+                    };
                     //
                     menuItemSaveAs.Items.Add(menuItemSaveAsTGA);
+                    menuItemSaveAs.Items.Add(menuItemSaveAsEx);
                 }
                 //
                 contextMenu.Items.Add(menuItemSaveAs);
