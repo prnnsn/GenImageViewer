@@ -75,7 +75,7 @@ namespace GenImageViewer
         /// <summary>
         /// Data of mapped image in TGA from MappedFile (MappedImages ini file)
         /// </summary>
-        public class MappedImage
+        public class MappedImage : ICloneable
         {
             public string Name;
             public string Texture;
@@ -119,7 +119,11 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    File.AppendAllText(name, GetMappedCode(mappedImage));
+                    using (var stream = File.AppendText(name))
+                    {
+                        stream.WriteLine(GetMappedCode(mappedImage));
+                        stream.WriteLine();
+                    }
                 }
             }
 
@@ -136,56 +140,59 @@ namespace GenImageViewer
                 Clipboard.SetText(s);
             }
             /// <summary>
+            /// Get cuted MappedImage (sizes) to TGA file sizes
+            /// </summary>
+            /// <param name="tgaWidth"></param>
+            /// <param name="tgaHeight"></param>
+            /// <returns></returns>
+            public MappedImage GetCutedMappByTGASize()
+            {              
+                int height = TextureSize.Height;
+                int width = TextureSize.Width;
+                MappedCoordinates coords = (MappedCoordinates)Coords.Clone();
+
+                if (height != TGAFile.Height)
+                {
+                    double k = (double)TGAFile.Height / (double)height;
+                    coords.Top = (int)Math.Round((double)coords.Top * k, MidpointRounding.AwayFromZero);
+                    coords.Bottom = (int)Math.Round((double)coords.Bottom * k, MidpointRounding.AwayFromZero);
+                    if (coords.Bottom > TGAFile.Height) coords.Bottom = TGAFile.Height;
+                }
+                height = coords.Bottom - coords.Top;
+
+                if (width != TGAFile.Width)
+                {
+                    double k = (double)TGAFile.Width / (double)width;
+                    coords.Left = (int)Math.Round((double)coords.Left * k, MidpointRounding.AwayFromZero);
+                    coords.Right = (int)Math.Round((double)coords.Right * k, MidpointRounding.AwayFromZero);
+                    if (coords.Right > TGAFile.Width) coords.Right = TGAFile.Width;
+                }
+                width = coords.Right - coords.Left;
+
+                return new MappedImage()
+                {
+                    TextureSize = new MappedTextureSize()
+                    {
+                        Width = width,
+                        Height = height
+                    },
+                    Coords = coords
+                };
+            }
+            /// <summary>
             /// Save image from TGA by MappedImage variables
             /// </summary>
             /// <param name="fileName">Name and path to save</param>
             public void Save(string fileName)
             {
-                Bitmap bitmap;
-                if (TGAFile.BIGResource != null)
-                {
-                    using (FileStream fs = new FileStream($@"{ParentMappedFile.GameResource.MainFolder}\{TGAFile.BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
-                    using (BinaryReader br = new BinaryReader(fs))
-                    {
-                        br.BaseStream.Position = TGAFile.BIGResource.Offset;
-                        byte[] bytes = br.ReadBytes(TGAFile.BIGResource.Lenght);
-                        using (MemoryStream ms = new MemoryStream(bytes))
-                        {
-                            bitmap = TGA.FromBytes(ms.ToArray()).ToBitmap();
-                        }
-                    }
-                }
-                else
-                {
-                    bitmap = TGA.FromFile($@"{ParentMappedFile.GameResource.MainFolder}\{(string)TGAFile.TGALocation}\{TGAFile.Name}").ToBitmap();
-                }
+                Bitmap bitmap = TGAFile.GetBitmap();
 
-                int height = TextureSize.Height;
-                int width = TextureSize.Width;
-                MappedCoordinates coords = (MappedCoordinates)Coords.Clone();
+                MappedImage mappedImage = GetCutedMappByTGASize();                               
 
-                if (height != bitmap.Height)
-                {
-                    double k = (double)bitmap.Height / (double)height;
-                    coords.Top = (int)Math.Round((double)coords.Top * k, MidpointRounding.AwayFromZero);
-                    coords.Bottom = (int)Math.Round((double)coords.Bottom * k, MidpointRounding.AwayFromZero);
-                    if (coords.Bottom > bitmap.Height) coords.Bottom = bitmap.Height;
-                }
-                height = coords.Bottom - coords.Top;
-
-                if (width != bitmap.Width)
-                {
-                    double k = (double)bitmap.Width / (double)width;
-                    coords.Left = (int)Math.Round((double)coords.Left * k, MidpointRounding.AwayFromZero);
-                    coords.Right = (int)Math.Round((double)coords.Right * k, MidpointRounding.AwayFromZero);
-                    if (coords.Right > bitmap.Width) coords.Right = bitmap.Width;
-                }
-                width = coords.Right - coords.Left;
-
-                Bitmap cameo = new Bitmap(width, height);
+                Bitmap cameo = new Bitmap(mappedImage.TextureSize.Width, mappedImage.TextureSize.Height);
                 for (int y = 0; y < cameo.Height; y++)
                     for (int x = 0; x < cameo.Width; x++)
-                        cameo.SetPixel(x, y, bitmap.GetPixel(x + coords.Left, y + coords.Top));
+                        cameo.SetPixel(x, y, bitmap.GetPixel(x + mappedImage.Coords.Left, y + mappedImage.Coords.Top));
 
                 bitmap.Dispose();
 
@@ -195,6 +202,48 @@ namespace GenImageViewer
                 tGA.Save(fileName);
                 cameo.Dispose();
             }
+            /// <summary>
+            /// Save image and mapp code from TGA by MappedImage variables
+            /// </summary>
+            /// <param name="mappedImageSource">Source mapped image</param>
+            /// <param name="tgaFileName">Name and path to save tga file</param>
+            /// <param name="iniFileName">Name and path to save ini file (mapp code)</param>
+            /// <param name="rewriteIni">If true, then create new file with code, else add code in exist file</param>
+            public static void SaveMappAndTGA(MappedImage mappedImageSource, string tgaFileName, string iniFileName, bool rewriteIni)
+            {
+                Bitmap bitmap = mappedImageSource.TGAFile.GetBitmap();
+
+                MappedImage mappedImage = mappedImageSource.GetCutedMappByTGASize();
+                mappedImage.Name = mappedImageSource.Name;
+                mappedImage.Texture = mappedImageSource.Texture;               
+                mappedImage.Status = mappedImageSource.Status;
+
+                Bitmap cameo = new Bitmap(mappedImage.TextureSize.Width, mappedImage.TextureSize.Height);
+                for (int y = 0; y < cameo.Height; y++)
+                    for (int x = 0; x < cameo.Width; x++)
+                        cameo.SetPixel(x, y, bitmap.GetPixel(x + mappedImage.Coords.Left, y + mappedImage.Coords.Top));
+
+                bitmap.Dispose();
+
+                if (File.Exists(tgaFileName))
+                    File.Delete(tgaFileName);
+                TGA tGA = TGA.FromBitmap(cameo, false, false);
+                tGA.Save(tgaFileName);
+
+                mappedImage.Coords = new MappedCoordinates()
+                {
+                    Top = 0,
+                    Left = 0,
+                    Right = cameo.Width,
+                    Bottom = cameo.Height
+                };
+
+                cameo.Dispose();
+                
+                SaveMappedCode(mappedImage, iniFileName, rewriteIni);
+            }
+
+            public object Clone() => MemberwiseClone();
         }
         /// <summary>
         /// TGA Location in game resources (Art\Textrures and itc)
@@ -214,6 +263,8 @@ namespace GenImageViewer
             public GameResource GameResource => _gameResource;
             public TGALocation TGALocation;
             public string Name;
+            public int Width;
+            public int Height;
             public BIGResource BIGResource;
             public List<MappedImage> MappedImages;
             public TGAFile(GameResource gameResource)
@@ -241,7 +292,7 @@ namespace GenImageViewer
                 }
                 else
                 {
-                    return TGA.FromFile($@"{GameResource.MainFolder}\{(string)TGALocation}\{Name}").ToBitmap(); //баг
+                    return TGA.FromFile($@"{GameResource.MainFolder}\{(string)TGALocation}\{Name}").ToBitmap();
                 }
             }
             public void Save(string fileName)
@@ -260,6 +311,39 @@ namespace GenImageViewer
                 else
                 {
                     File.Copy($@"{GameResource.MainFolder}\{(string)TGALocation}\{Name}", fileName, true);
+                }
+            }
+            /// <summary>
+            /// Init TGA size from existing tga file
+            /// </summary>
+            public void InitSize()
+            {
+                byte[] buffer;
+                if (BIGResource != null)
+                {
+                    using (FileStream fs = new FileStream($@"{GameResource.MainFolder}\{BIGResource.BIGRFile.FileName}", FileMode.Open, FileAccess.Read))
+                    using (BinaryReader br = new BinaryReader(fs))
+                    {
+                        br.BaseStream.Position = BIGResource.Offset + 12;  
+                        buffer = br.ReadBytes(2);
+                        Width = BitConverter.ToInt32(new byte[] { buffer[0], buffer[1], 0, 0}, 0);
+
+                        buffer = br.ReadBytes(2);
+                        Height = BitConverter.ToInt32(new byte[] { buffer[0], buffer[1], 0, 0 }, 0);
+                    }
+                }
+                else
+                {
+                    using (FileStream fs = new FileStream($@"{GameResource.MainFolder}\{(string)TGALocation}\{Name}", FileMode.Open, FileAccess.Read))
+                    using (BinaryReader br = new BinaryReader(fs))
+                    {
+                        br.BaseStream.Position = 12;
+                        buffer = br.ReadBytes(2);
+                        Width = BitConverter.ToInt32(new byte[] { buffer[0], buffer[1], 0, 0 }, 0);
+
+                        buffer = br.ReadBytes(2);
+                        Height = BitConverter.ToInt32(new byte[] { buffer[0], buffer[1], 0, 0 }, 0);
+                    }
                 }
             }
         }
@@ -356,6 +440,7 @@ namespace GenImageViewer
                         MappedImages = new List<MappedImage>(),
                         Name = resourceTGAFiles[index].Name
                     };
+                    tgaFile.InitSize();
                     TGAFiles.Add(tgaFile);
                     resourceTGAFiles.RemoveAt(index);
 
