@@ -853,7 +853,7 @@
         <Grid>
             <Border
                 Name="border"
-                BorderThickness="1">
+                BorderThickness="2">
 
             </Border>
         </Grid>
@@ -881,8 +881,18 @@
                 </Setter>
                 <Setter
                     Property="BorderThickness"
-                    Value="2"
+                    Value="3"
                     TargetName="border" />
+                <Setter
+                    Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect
+                            Color="#319AE7"
+                            ShadowDepth="0"
+                            BlurRadius="5"
+                            Opacity="0.4" />
+                    </Setter.Value>
+                </Setter>
             </Trigger>
             <Trigger
                 Property="IsMouseOver"
@@ -897,7 +907,7 @@
                     TargetName="border" />
                 <Setter
                     Property="BorderThickness"
-                    Value="1"
+                    Value="2"
                     TargetName="border" />
             </Trigger>
             <Trigger
@@ -923,7 +933,7 @@
                 </Setter>
                 <Setter
                     Property="BorderThickness"
-                    Value="2"
+                    Value="3"
                     TargetName="border" />
             </Trigger>
 
@@ -935,7 +945,7 @@
         <Grid>
             <Border
                 Name="border"
-                BorderThickness="1">
+                BorderThickness="3">
             </Border>
         </Grid>
         <ControlTemplate.Triggers>
@@ -948,7 +958,7 @@
                     <Setter.Value>
                         <SolidColorBrush
                             Color="#31C4E7"
-                            Opacity="0.5" />
+                            Opacity="0.3" />
                     </Setter.Value>
                 </Setter>
                 <Setter
@@ -957,13 +967,23 @@
                     <Setter.Value>
                         <SolidColorBrush
                             Color="#319AE7"
-                            Opacity="1" />
+                            Opacity="0.9" />
                     </Setter.Value>
                 </Setter>
                 <Setter
                     Property="BorderThickness"
-                    Value="2"
+                    Value="3"
                     TargetName="border" />
+                <Setter
+                    Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect
+                            Color="#319AE7"
+                            ShadowDepth="0"
+                            BlurRadius="5"
+                            Opacity="0.4"/>
+                    </Setter.Value>
+                </Setter>
             </Trigger>
             <Trigger
                 Property="IsMouseOver"
@@ -988,7 +1008,7 @@
                 </Setter>
                 <Setter
                     Property="BorderThickness"
-                    Value="1"
+                    Value="2"
                     TargetName="border" />
             </Trigger>
             <Trigger

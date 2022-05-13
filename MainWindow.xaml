@@ -10,7 +10,9 @@
     WindowStartupLocation="CenterScreen"
     Title="GenImageViewer"
     Height="500"
+    MinHeight="400"
     Width="800"
+    MinWidth="600"
     Icon="mainICON.ico"
     Style="{DynamicResource WindowStyle}">
     <Grid>
@@ -47,11 +49,18 @@
                 Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition
-                        Width="295*" />
+                        Width="260" 
+                        MaxWidth="350"
+                        MinWidth="200"/>
                     <ColumnDefinition
-                        Width="456*" />
+                        Width="3" />
+                    <ColumnDefinition
+                        Width="*"
+                        MinWidth="300"/>
                 </Grid.ColumnDefinitions>
-                <Grid>
+                <Grid
+                    Grid.ColumnSpan="2"
+                    Margin="0,0,1,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
@@ -74,11 +83,12 @@
                                     Height="Auto" />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <TextBlock>TGA Files:</TextBlock>
+                            <TextBlock >TGA Files:</TextBlock>
                             <ListBox
                                 Style="{DynamicResource ListBoxStyle}"
                                 x:Name="lstTGA"
                                 Grid.Row="1"
+                                FontSize="11"
                                 SelectionChanged="lstTGA_SelectionChanged" />
                         </Grid>
                     </Border>
@@ -101,6 +111,7 @@
                                 Style="{DynamicResource ListBoxStyle}"
                                 Grid.Column="1"
                                 Grid.Row="1"
+                                FontSize="11"
                                 x:Name="lstImages" />
                         </Grid>
                     </Border>
@@ -129,15 +140,44 @@
                                 Orientation="Horizontal"
                                 Grid.Row="1"
                                 Grid.Column="0">
-                                <TextBlock>TGA файлов: <Run /></TextBlock>
+                                <TextBlock>TGA файлов: <Run />
+                                    <TextBlock.ToolTip>
+                                        <ToolTip
+                                            DataContext="{Binding Source={x:Reference infoTotalTGACount}}"
+                                            Placement="Top"
+                                            ToolTipService.ShowDuration="60000">
+                                            <ToolTip.Content>
+                                                <TextBlock>
+                                                    TGA файлов: <Run
+                                                        Text="{Binding Path=Text, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </ToolTip.Content>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
                                 <TextBlock
-                                    x:Name="infoTotalTGACount">0</TextBlock>
+                                    x:Name="infoTotalTGACount"
+                                    Text="0" />
                             </StackPanel>
                             <StackPanel
                                 Orientation="Horizontal"
                                 Grid.Row="2"
                                 Grid.Column="0">
-                                <TextBlock>MappedImage: <Run /></TextBlock>
+                                <TextBlock>MappedImage: <Run />
+                                    <TextBlock.ToolTip>
+                                        <ToolTip
+                                            DataContext="{Binding Source={x:Reference infoTotalMappedImages}}"
+                                            Placement="Top"
+                                            ToolTipService.ShowDuration="60000">
+                                            <ToolTip.Content>
+                                                <TextBlock>
+                                                    MappedImage: <Run
+                                                        Text="{Binding Path=Text, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </ToolTip.Content>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
                                 <TextBlock
                                     x:Name="infoTotalMappedImages">0</TextBlock>
                             </StackPanel>
@@ -145,7 +185,21 @@
                                 Orientation="Horizontal"
                                 Grid.Row="3"
                                 Grid.Column="0">
-                                <TextBlock>MappedImage INI: <Run /></TextBlock>
+                                <TextBlock>MappedImage INI: <Run />
+                                    <TextBlock.ToolTip>
+                                        <ToolTip
+                                            DataContext="{Binding Source={x:Reference infoTotalINI}}"
+                                            Placement="Top"
+                                            ToolTipService.ShowDuration="60000">
+                                            <ToolTip.Content>
+                                                <TextBlock>
+                                                    MappedImage INI: <Run
+                                                        Text="{Binding Path=Text, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </ToolTip.Content>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
                                 <TextBlock
                                     x:Name="infoTotalINI">0</TextBlock>
                             </StackPanel>
@@ -176,7 +230,21 @@
                                 Orientation="Horizontal"
                                 Grid.Row="1"
                                 Grid.Column="1">
-                                <TextBlock>TGA файлов: <Run /></TextBlock>
+                                <TextBlock>TGA файлов: <Run />
+                                    <TextBlock.ToolTip>
+                                        <ToolTip
+                                            DataContext="{Binding Source={x:Reference infoTGACount}}"
+                                            Placement="Top"
+                                            ToolTipService.ShowDuration="60000">
+                                            <ToolTip.Content>
+                                                <TextBlock>
+                                                    TGA файлов: <Run
+                                                        Text="{Binding Path=Text, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </ToolTip.Content>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
                                 <TextBlock
                                     x:Name="infoTGACount">0</TextBlock>
                             </StackPanel>
@@ -184,7 +252,21 @@
                                 Orientation="Horizontal"
                                 Grid.Row="2"
                                 Grid.Column="1">
-                                <TextBlock>MappedImage: <Run /></TextBlock>
+                                <TextBlock>MappedImage: <Run />
+                                    <TextBlock.ToolTip>
+                                        <ToolTip
+                                            DataContext="{Binding Source={x:Reference infoMappedImages}}"
+                                            Placement="Top"
+                                            ToolTipService.ShowDuration="60000">
+                                            <ToolTip.Content>
+                                                <TextBlock>
+                                                    MappedImage: <Run
+                                                        Text="{Binding Path=Text, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </ToolTip.Content>
+                                        </ToolTip>
+                                    </TextBlock.ToolTip>
+                                </TextBlock>
                                 <TextBlock
                                     x:Name="infoMappedImages">0</TextBlock>
                             </StackPanel>
@@ -198,12 +280,15 @@
                         </Grid>
                     </Border>
                 </Grid>
-
+                <GridSplitter
+                    Grid.Column="1" 
+                    VerticalAlignment="Stretch"
+                    HorizontalAlignment="Stretch" />
                 <Border
-                    Grid.Column="1"
+                    Grid.Column="2"
                     BorderThickness="1"
                     BorderBrush="LightGray"
-                    Margin="5">
+                    Margin="4,5,5,5">
                     <Grid
                         Margin="5">
                         <Grid
@@ -216,6 +301,12 @@
                                 Height="{Binding ElementName=imgTGA, Path=ActualHeight}"
                                 Width="{Binding ElementName=imgTGA, Path=ActualWidth}">
                             </Canvas>
+                            <Border
+                                BorderThickness="3"
+                                BorderBrush="LightGray"
+                                Height="{Binding ElementName=imgTGA, Path=ActualHeight}"
+                                Width="{Binding ElementName=imgTGA, Path=ActualWidth}">
+                            </Border>
                         </Grid>
                     </Grid>
                 </Border>
