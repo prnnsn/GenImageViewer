@@ -6,11 +6,17 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using Size = System.Windows.Size;
 
 namespace GenImageViewer
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Get BitmapSource for WPF image
+        /// </summary>
+        /// <param name="tgaFile">TGA file from GameResource.TGAFile</param>
+        /// <returns>WPF BitmapSource</returns>
         public static BitmapSource ToWpfBitmapSource(this GameResource.TGAFile tgaFile)
         {
             var bitmap = tgaFile.GetBitmap();
@@ -42,14 +48,34 @@ namespace GenImageViewer
                 bitmap.UnlockBits(bitmapData);
             }
         }
+
+        /// <summary>
+        /// Get ratio from this size to size in parameters
+        /// </summary>
+        /// <param name="src">Current size</param>
+        /// <param name="size">Size to which is will be calculated ratio</param>
+        /// <returns>Ratio</returns>
+        public static Ratio GetRatioTo(this Size src, Size size)
+        {
+            return new Ratio(src.Width / size.Width, src.Height / size.Height);
+        }
     }
+
+    /// <summary>
+    /// Ratio for two image sizes
+    /// </summary>
     public class Ratio
     {
-        public double X, Y;
+        public double k_Width, k_Height;
         public Ratio()
         {
-            X = 1;
-            Y = 1;
+            k_Width = 1;
+            k_Height = 1;
+        }
+        public Ratio(double k_width, double k_height)
+        {
+            this.k_Width = k_width;
+            this.k_Height = k_height;
         }
     }
 
@@ -57,12 +83,21 @@ namespace GenImageViewer
     {
         private static MainWindow mainWindow;
         private List<Control> mappedImageControls;
-        private System.Windows.Size TGASize;
-        private System.Windows.Size ImageSize;
+        /// <summary>
+        /// Current TGA size
+        /// </summary>
+        private Size TGASize;
+        /// <summary>
+        /// Current image size on window
+        /// </summary>
+        private Size ImageSize;
+        /// <summary>
+        /// Ratio image to tga (need for correctly draw)
+        /// </summary>
         private Ratio ImageToTGA;
 
         public GameResource GameResources;
-        public bool IsGrid = false;
+        public bool GridHighlighting = false;
 
         private void lstTGA_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -74,26 +109,14 @@ namespace GenImageViewer
         }
         private void CalcRatioImageToTGA()
         {
-            ImageSize = new System.Windows.Size()
-            {
-                Width = grdButtons.ActualWidth,
-                Height = grdButtons.ActualHeight
-            };
+            ImageSize = new Size(grdButtons.ActualWidth, grdButtons.ActualHeight);
 
-            ImageToTGA = new Ratio()
-            {
-                X = ImageSize.Width / TGASize.Width,
-                Y = ImageSize.Height / TGASize.Height
-            };
+            ImageToTGA = ImageSize.GetRatioTo(TGASize);
         }
-        private void CalcRatioImageToTGA(System.Windows.Size size)
+        private void CalcRatioImageToTGA(Size size)
         {
             ImageSize = size;
-            ImageToTGA = new Ratio()
-            {
-                X = ImageSize.Width / TGASize.Width,
-                Y = ImageSize.Height / TGASize.Height
-            };
+            ImageToTGA = ImageSize.GetRatioTo(TGASize);
         }
         private void SelectTGAItem(int index)
         {
@@ -102,7 +125,7 @@ namespace GenImageViewer
 
             imgTGA.Source = tgaFile.ToWpfBitmapSource();
 
-            TGASize = new System.Windows.Size()
+            TGASize = new Size()
             {
                 Width = tgaFile.Width,
                 Height = tgaFile.Height
@@ -226,7 +249,7 @@ namespace GenImageViewer
         }
         private void ChangeMappedImageControlStyle(Control control)
         {
-            if (IsGrid)
+            if (GridHighlighting)
                 SetGridMappedImageControlStyle(control);
             else
                 SetNormalMappedImageControlStyle(control);
@@ -238,24 +261,19 @@ namespace GenImageViewer
             Ratio tgaToMapped = new Ratio();
             if (TGASize.Width != mappedImage.TextureSize.Width)
             {
-                //tgaToMapped.X = TGASize.Width / (mappedImage.Coords.Right - mappedImage.Coords.Left);
-                tgaToMapped.X = TGASize.Width / mappedImage.TextureSize.Width;
+                tgaToMapped.k_Width = TGASize.Width / mappedImage.TextureSize.Width;
             }
             if (TGASize.Height != mappedImage.TextureSize.Height)
             {
-                //tgaToMapped.Y = TGASize.Height / (mappedImage.Coords.Bottom - mappedImage.Coords.Top);
-                tgaToMapped.Y = TGASize.Height / mappedImage.TextureSize.Height;
+                tgaToMapped.k_Height = TGASize.Height / mappedImage.TextureSize.Height;
             }
-            control.Width = (mappedImage.Coords.Right - mappedImage.Coords.Left) * tgaToMapped.X * ImageToTGA.X;
-            control.Height = (mappedImage.Coords.Bottom - mappedImage.Coords.Top) * tgaToMapped.Y * ImageToTGA.Y;
+            control.Width = (mappedImage.Coords.Right - mappedImage.Coords.Left) * tgaToMapped.k_Width * ImageToTGA.k_Width;
+            control.Height = (mappedImage.Coords.Bottom - mappedImage.Coords.Top) * tgaToMapped.k_Height * ImageToTGA.k_Height;
 
-            double left = mappedImage.Coords.Left * tgaToMapped.X * ImageToTGA.X;
+            double left = mappedImage.Coords.Left * tgaToMapped.k_Width * ImageToTGA.k_Width;
             if (left < 3)
             {
                 left = 3;
-                //double w = control.Width - 3;
-                //if (w < 0) w = 0;
-                //control.Width = w;
             }
             if (left + control.Width + 3 > ImageSize.Width)
             {
@@ -264,13 +282,10 @@ namespace GenImageViewer
                 control.Width = w;
             }
 
-            double top = mappedImage.Coords.Top * tgaToMapped.Y * ImageToTGA.Y;
+            double top = mappedImage.Coords.Top * tgaToMapped.k_Height * ImageToTGA.k_Height;
             if (top < 3)
             {
                 top = 3;
-                //double h = control.Height - 3;
-                //if (h < 0) h = 0;
-                //control.Height = h;
             }
             if (top + control.Height + 3 > ImageSize.Height)
             {
@@ -292,7 +307,7 @@ namespace GenImageViewer
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            IsGrid = true;
+            GridHighlighting = true;
             if (mappedImageControls != null)
                 for (int i = 0; i < mappedImageControls.Count; i++)
                     SetGridMappedImageControlStyle(mappedImageControls[i]);
@@ -300,7 +315,7 @@ namespace GenImageViewer
 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            IsGrid = false;
+            GridHighlighting = false;
             if (mappedImageControls != null)
                 for (int i = 0; i < mappedImageControls.Count; i++)
                     SetNormalMappedImageControlStyle(mappedImageControls[i]);
@@ -357,6 +372,7 @@ namespace GenImageViewer
         private ListBoxItem CreateTGAListBoxItem(GameResource.TGAFile tgaFile)
         {
             // I am forced to use this dirt method because otherwise i get memory leaks in ToolTip image
+            // StackPanel for ToolTip content
             StackPanel GetToolTipContent()
             {
                 StackPanel stackPanel = new StackPanel()

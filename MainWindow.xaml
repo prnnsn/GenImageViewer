@@ -34,7 +34,7 @@
                 Header="Вид">
                 <CheckBox
                     Focusable="False"
-                    Content="Сетка"
+                    Content="Подсветка маппов"
                     IsChecked="False"
                     Checked="CheckBox_Checked"
                     Unchecked="CheckBox_Unchecked" />

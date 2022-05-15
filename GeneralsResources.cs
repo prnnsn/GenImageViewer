@@ -23,7 +23,7 @@ namespace GenImageViewer
         public class BIGResource
         {
             public BIGFile BIGRFile;
-            public int Offset, Lenght;
+            public uint Offset, Lenght;
             public string Name;
         }
         /// <summary>
@@ -283,7 +283,7 @@ namespace GenImageViewer
                     using (BinaryReader br = new BinaryReader(fs))
                     {
                         br.BaseStream.Position = BIGResource.Offset;
-                        byte[] bytes = br.ReadBytes(BIGResource.Lenght);
+                        byte[] bytes = br.ReadBytes((int)BIGResource.Lenght);
                         using (MemoryStream ms = new MemoryStream(bytes))
                         {
                             return TGA.FromBytes(ms.ToArray()).ToBitmap();
@@ -305,7 +305,7 @@ namespace GenImageViewer
                         br.BaseStream.Position = BIGResource.Offset;
                         using (FileStream fsWrite = new FileStream(fileName, FileMode.Create, FileAccess.Write))
                         using (BinaryWriter sw = new BinaryWriter(fsWrite))
-                            sw.Write(br.ReadBytes(BIGResource.Lenght));
+                            sw.Write(br.ReadBytes((int)BIGResource.Lenght));
                     }
                 }
                 else
@@ -518,8 +518,8 @@ namespace GenImageViewer
                     BIGResource = new BIGResource()
                     {
                         BIGRFile = bIGFile,
-                        Lenght = (int)bigArchive.Entries[entryIndex].Length,
-                        Offset = (int)bigArchive.Entries[entryIndex].Offset,
+                        Lenght = bigArchive.Entries[entryIndex].Length,
+                        Offset = bigArchive.Entries[entryIndex].Offset,
                         Name = bigArchive.Entries[entryIndex].Name
                     },
                     Name = fileName
@@ -530,8 +530,8 @@ namespace GenImageViewer
                 resourceMappedFile.BIGResource = new BIGResource()
                 {
                     BIGRFile = bIGFile,
-                    Lenght = (int)bigArchive.Entries[entryIndex].Length,
-                    Offset = (int)bigArchive.Entries[entryIndex].Offset,
+                    Lenght = bigArchive.Entries[entryIndex].Length,
+                    Offset = bigArchive.Entries[entryIndex].Offset,
                     Name = bigArchive.Entries[entryIndex].Name
                 };
             }
@@ -546,8 +546,8 @@ namespace GenImageViewer
                 if (_resourceTGAFiles_Art[k].Name == name)
                 {
                     _resourceTGAFiles_Art[k].BIGResource.BIGRFile = bIGFile;
-                    _resourceTGAFiles_Art[k].BIGResource.Lenght = (int)bigArchive.Entries[entryIndex].Length;
-                    _resourceTGAFiles_Art[k].BIGResource.Offset = (int)bigArchive.Entries[entryIndex].Offset;
+                    _resourceTGAFiles_Art[k].BIGResource.Lenght = bigArchive.Entries[entryIndex].Length;
+                    _resourceTGAFiles_Art[k].BIGResource.Offset = bigArchive.Entries[entryIndex].Offset;
                     goto close;
                 }
             _resourceTGAFiles_Art.Add(new TGAFile(this)
@@ -557,8 +557,8 @@ namespace GenImageViewer
                 BIGResource = new BIGResource()
                 {
                     BIGRFile = bIGFile,
-                    Lenght = (int)bigArchive.Entries[entryIndex].Length,
-                    Offset = (int)bigArchive.Entries[entryIndex].Offset,
+                    Lenght = bigArchive.Entries[entryIndex].Length,
+                    Offset = bigArchive.Entries[entryIndex].Offset,
                     Name = bigArchive.Entries[entryIndex].Name
                 }
             });
@@ -571,8 +571,8 @@ namespace GenImageViewer
                 if (_resourceTGAFiles_Data[k].Name == name)
                 {
                     _resourceTGAFiles_Data[k].BIGResource.BIGRFile = bIGFile;
-                    _resourceTGAFiles_Data[k].BIGResource.Lenght = (int)bigArchive.Entries[entryIndex].Length;
-                    _resourceTGAFiles_Data[k].BIGResource.Offset = (int)bigArchive.Entries[entryIndex].Offset;
+                    _resourceTGAFiles_Data[k].BIGResource.Lenght = bigArchive.Entries[entryIndex].Length;
+                    _resourceTGAFiles_Data[k].BIGResource.Offset = bigArchive.Entries[entryIndex].Offset;
                     goto close;
                 }
             _resourceTGAFiles_Data.Add(new TGAFile(this)
@@ -582,8 +582,8 @@ namespace GenImageViewer
                 BIGResource = new BIGResource()
                 {
                     BIGRFile = bIGFile,
-                    Lenght = (int)bigArchive.Entries[entryIndex].Length,
-                    Offset = (int)bigArchive.Entries[entryIndex].Offset,
+                    Lenght = bigArchive.Entries[entryIndex].Length,
+                    Offset = bigArchive.Entries[entryIndex].Offset,
                     Name = bigArchive.Entries[entryIndex].Name
                 }
             });
@@ -763,7 +763,7 @@ namespace GenImageViewer
             using (BinaryReader br = new BinaryReader(fs))
             {
                 br.BaseStream.Position = bigResource.Offset;
-                s = Encoding.ASCII.GetString(br.ReadBytes(bigResource.Lenght));
+                s = Encoding.ASCII.GetString(br.ReadBytes((int)bigResource.Lenght));
             }
             string[] tempLines = s.Split(new string[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             for (int k = 0; k < tempLines.Length; k++)
