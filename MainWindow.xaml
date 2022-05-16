@@ -19,7 +19,10 @@
         <Grid.RowDefinitions>
             <RowDefinition
                 Height="Auto" />
-            <RowDefinition />
+            <RowDefinition
+                Height="Auto" />
+            <RowDefinition
+                Height="*" />
             <RowDefinition
                 Height="Auto" />
         </Grid.RowDefinitions>
@@ -31,6 +34,12 @@
                     Click="miSelectFolder_Click" />
             </MenuItem>
             <MenuItem
+                Header="Правка">
+                <MenuItem
+                    Header="Поиск"
+                    Click="miSearch_Click" />
+            </MenuItem>
+            <MenuItem
                 Header="Вид">
                 <CheckBox
                     Focusable="False"
@@ -40,23 +49,44 @@
                     Unchecked="CheckBox_Unchecked" />
             </MenuItem>
         </Menu>
-        <Border
+        <StatusBar
+            x:Name="sbSearchBar"
             Grid.Row="1"
-            Margin="5"
+            Visibility="Collapsed">
+            <Button
+                Width="20"
+                Height="20"
+                Padding="0"
+                Margin="5, 0, 0, 0"
+                Click="btnCloseSearch_Click">✘</Button>
+            <ComboBox
+                x:Name="cmbSearch"
+                MinWidth="150"
+                IsReadOnly="False"
+                StaysOpenOnEdit="True"
+                IsEditable="True"
+                GotFocus="cmbSearch_GotFocus"
+                LostFocus="cmbSearch_LostFocus"
+                KeyDown="cmbSearch_KeyDown">
+            </ComboBox>
+        </StatusBar>
+        <Border
+            Grid.Row="2"
+            Margin="5,5,5,5"
             BorderBrush="LightGray"
             BorderThickness="1">
             <Grid
                 Margin="5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition
-                        Width="260" 
+                        Width="260"
                         MaxWidth="350"
-                        MinWidth="200"/>
+                        MinWidth="200" />
                     <ColumnDefinition
                         Width="3" />
                     <ColumnDefinition
                         Width="*"
-                        MinWidth="300"/>
+                        MinWidth="300" />
                 </Grid.ColumnDefinitions>
                 <Grid
                     Grid.ColumnSpan="2"
@@ -83,7 +113,7 @@
                                     Height="Auto" />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <TextBlock >TGA Files:</TextBlock>
+                            <TextBlock>TGA Files:</TextBlock>
                             <ListBox
                                 Style="{DynamicResource ListBoxStyle}"
                                 x:Name="lstTGA"
@@ -281,7 +311,7 @@
                     </Border>
                 </Grid>
                 <GridSplitter
-                    Grid.Column="1" 
+                    Grid.Column="1"
                     VerticalAlignment="Stretch"
                     HorizontalAlignment="Stretch" />
                 <Border
@@ -312,9 +342,8 @@
                 </Border>
             </Grid>
         </Border>
-
         <StatusBar
-            Grid.Row="2">
+            Grid.Row="3">
             <StatusBarItem>Выбранная папка:</StatusBarItem>
             <StatusBarItem
                 x:Name="stbSelectedFolder"></StatusBarItem>

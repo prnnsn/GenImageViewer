@@ -211,6 +211,12 @@ namespace GenImageViewer
                 lstImages.ScrollIntoView(listBoxItem);
                 lstImages.SelectedItem = listBoxItem;
             };
+            control.MouseLeave += delegate
+            {
+                mouseEnter = false;
+                listBoxItem.Focus();
+                bool f = control.IsFocused;
+            };
 
             ContextMenu contextMenu = new ContextMenu();
             {
@@ -349,6 +355,8 @@ namespace GenImageViewer
             grdButtons.Children.Clear();
             lstTGA.Items.Clear();
 
+            cmbSearch.Items.Clear();
+
             infoTGACount.Text = "0";
 
             GameResources.Load(folder);
@@ -359,6 +367,7 @@ namespace GenImageViewer
             infoTotalMappedImages.Text = GameResources.MappedImages.Count.ToString();
 
             AddTGAItems();
+            AddItemsToSearchCmb();
         }
 
         private void AddTGAItems()
@@ -490,6 +499,74 @@ namespace GenImageViewer
             listBoxItem.ContextMenu = contextMenu;
             return listBoxItem;
         }
+
+        private void AddItemsToSearchCmb()
+        {
+            List<ComboBoxItem> comboBoxItems = new List<ComboBoxItem>();
+
+            foreach (GameResource.TGAFile tgaFile in GameResources.TGAFiles)
+            {
+                ComboBoxItem item = new ComboBoxItem()
+                {
+                    Content = tgaFile.Name,
+                    Tag = tgaFile
+                };
+                item.PreviewMouseLeftButtonUp += delegate
+                {
+                    SelectItemTGA(tgaFile);
+                };
+                comboBoxItems.Add(item);
+            }
+
+            foreach (GameResource.MappedImage mappedImage in GameResources.MappedImages)
+            {
+                ComboBoxItem item = new ComboBoxItem()
+                {
+                    Content = mappedImage.Name,
+                    Tag = mappedImage
+                };
+                item.PreviewMouseLeftButtonUp += delegate
+                {
+                    SelectItemMappedImage(mappedImage);
+                };
+                comboBoxItems.Add(item);
+            }
+
+            int Sort(ComboBoxItem item1, ComboBoxItem item2)
+            {
+                if (item1.Content == null && item2.Content == null) return 0;
+                else if (item2.Content == null) return -1;
+                else if (item1.Content == null) return 1;
+                else return (item1.Content as string).CompareTo((string)item2.Content);
+            }
+
+            comboBoxItems.Sort(Sort);
+
+            for (int i = 0; i < comboBoxItems.Count; i++)
+                cmbSearch.Items.Add(comboBoxItems[i]);
+        }
+
+        private void SelectItemTGA(GameResource.TGAFile tgaFile)
+        {
+            for (int i = 0; i < lstTGA.Items.Count; i++)
+                if (tgaFile.Name == (string)(lstTGA.Items[i] as ListBoxItem).Content)
+                {
+                    lstTGA.SelectedIndex = i;
+                    return;
+                }
+        }
+        private void SelectItemMappedImage(GameResource.MappedImage mappedImage)
+        {
+            SelectItemTGA(mappedImage.TGAFile);
+
+            for (int i = 0; i < lstImages.Items.Count; i++)
+                if (mappedImage.Name == (mappedImageControls[i].Tag as GameResource.MappedImage).Name)
+                {
+                    mappedImageControls[i].Focus();
+                    lstImages.SelectedIndex = i;
+                    return;
+                }
+        }
         private string SaveFile(string extension)
         {
             using (System.Windows.Forms.SaveFileDialog fileFialog = new System.Windows.Forms.SaveFileDialog())
@@ -523,6 +600,49 @@ namespace GenImageViewer
                     CalcRatioImageToTGA(e.NewSize);
                     ResizeMappedImageControls();
                 }
+        }
+
+        private void miSearch_Click(object sender, RoutedEventArgs e)
+        {
+            cmbSearch.SelectedIndex = -1;
+            sbSearchBar.Visibility = Visibility.Visible;
+            cmbSearch.Focus();
+        }
+
+        private void cmbSearch_GotFocus(object sender, RoutedEventArgs e)
+        {
+            cmbSearch.IsDropDownOpen = true;
+        }
+
+        private void cmbSearch_LostFocus(object sender, RoutedEventArgs e)
+        {
+            cmbSearch.IsDropDownOpen = false;
+        }
+
+        private void btnCloseSearch_Click(object sender, RoutedEventArgs e)
+        {
+            sbSearchBar.Visibility = Visibility.Collapsed;
+        }
+
+        private void cmbSearch_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            ComboBoxItem selectedItem = cmbSearch.SelectedItem as ComboBoxItem;
+            if (selectedItem != null && e.Key == System.Windows.Input.Key.Enter)
+            {
+                cmbSearch.IsEditable = false;
+                cmbSearch.IsEditable = true;
+
+                Type tagType = selectedItem.Tag.GetType();
+                if (tagType == typeof(GameResource.TGAFile))
+                {
+                    SelectItemTGA(selectedItem.Tag as GameResource.TGAFile);
+                }
+                else if (tagType == typeof(GameResource.MappedImage))
+                {
+                    SelectItemMappedImage(selectedItem.Tag as GameResource.MappedImage);
+                }
+
+            }
         }
     }
 }
