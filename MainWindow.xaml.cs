@@ -198,6 +198,7 @@ namespace GenImageViewer
             listBoxItem.MouseEnter += delegate
             {
                 mouseEnter = true;
+                lstImages.SelectedItem = listBoxItem;
                 control.Focus();
             };
             listBoxItem.MouseLeave += delegate

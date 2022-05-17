@@ -137,7 +137,7 @@
                             </Grid.RowDefinitions>
                             <TextBlock
                                 Grid.Column="1">MappedImages:</TextBlock>
-                            <ListBox
+                            <ListBox ItemContainerStyle="{DynamicResource ListBoxItemContainerStyle}"
                                 Style="{DynamicResource ListBoxStyle}"
                                 Grid.Column="1"
                                 Grid.Row="1"
