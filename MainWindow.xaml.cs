@@ -400,7 +400,7 @@ namespace GenImageViewer
                 {
                     Text =
                     $@"{(tgaFile.BIGResource != null ? $@"BIG File = {tgaFile.BIGResource.BIGRFile.FileName}" + "\r\n" : "")}" +
-                            $@"{(string)tgaFile.TGALocation}\{tgaFile.Name}" + "\r\n" + "\r\n" +
+                            $@"{tgaFile.TGALocation}\{tgaFile.Name}" + "\r\n" + "\r\n" +
                             $@"Width = {tgaFile.Width}" + "\r\n" +
                             $@"Height = {tgaFile.Height}" + "\r\n" + "\r\n" +
                             $@"MappedImages = {tgaFile.MappedImages.Count}"
