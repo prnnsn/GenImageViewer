@@ -138,10 +138,14 @@ namespace GenImageViewer
 
             mappedImageControls = new List<Control>();
 
+            lstImages.BeginInit();
+            grdButtons.BeginInit();
             for (int i = 0; i < tgaFile.MappedImages.Count; i++)
             {
                 AddMapedImageControls(tgaFile.MappedImages[i]);
             }
+            lstImages.EndInit();
+            grdButtons.EndInit();
 
             infoMappedImages.Text = tgaFile.MappedImages.Count.ToString();
             GC.Collect();
@@ -373,10 +377,12 @@ namespace GenImageViewer
 
         private void AddTGAItems()
         {
+            lstTGA.BeginInit();
             for (int i = 0; i < GameResources.TGAFiles.Count; i++)
             {
                 lstTGA.Items.Add(CreateTGAListBoxItem(GameResources.TGAFiles[i]));
             }
+            lstTGA.EndInit();
         }
 
         private ListBoxItem CreateTGAListBoxItem(GameResource.TGAFile tgaFile)
@@ -543,8 +549,11 @@ namespace GenImageViewer
 
             comboBoxItems.Sort(Sort);
 
+
+            cmbSearch.BeginInit();
             for (int i = 0; i < comboBoxItems.Count; i++)
                 cmbSearch.Items.Add(comboBoxItems[i]);
+            cmbSearch.EndInit();
         }
 
         private void SelectItemTGA(GameResource.TGAFile tgaFile)
@@ -560,6 +569,7 @@ namespace GenImageViewer
         {
             SelectItemTGA(mappedImage.TGAFile);
 
+            lstImages.BeginInit();
             for (int i = 0; i < lstImages.Items.Count; i++)
                 if (mappedImage.Name == (mappedImageControls[i].Tag as GameResource.MappedImage).Name)
                 {
@@ -567,6 +577,7 @@ namespace GenImageViewer
                     lstImages.SelectedIndex = i;
                     return;
                 }
+            lstImages.EndInit();
         }
         private string SaveFile(string extension)
         {
